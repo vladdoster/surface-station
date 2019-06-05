@@ -1,7 +1,9 @@
-#Enbarr Surface Station
+# Enbarr Surface Station
 
 ### Run instructions
-##### *Nix systems
+
+#### *Nix systems
+
 Create a virtual env
 
     python3 -m venv venv
@@ -16,8 +18,8 @@ Install dependencies
 
 Start the server
 
-	python server.py
+	python server/server.py
 
-Start the wxPython client
+Start the GUI
 
-	python client.py
+	python application/app.py
