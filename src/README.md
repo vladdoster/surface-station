@@ -1,10 +1,12 @@
-# How to run
+#Enbarr Surface Station
 
+### Run instructions
+##### *Nix systems
 Create a virtual env
 
     python3 -m venv venv
    
-Activate env of *nix system
+Activate venv
 
     source venv/bin/activate
 
