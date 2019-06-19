@@ -22,4 +22,4 @@ Start the server
 
 Start the GUI
 
-	python application/app.py
+	python application/client.py
