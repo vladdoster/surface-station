@@ -1,3 +1,16 @@
+"""	 This file is part of Enbarr.
+     Enbarr is free software: you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation, either version 3 of the License, or
+     (at your option) any later version.
+     Enbarr is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+     You should have received a copy of the GNU General Public License
+     along with Enbarr.  If not, see <https://www.gnu.org/licenses/>.
+ """
+
 import json
 import os
 import time
@@ -15,7 +28,8 @@ from src.application.Joystick import InfoPanel, JoyPanel, POVPanel, AxisPanel, J
 class AUVPanel(wx.Panel):
     """
     """
-    def __init__(self, parent,):
+
+    def __init__(self, parent, ):
         wx.Panel.__init__(self, parent, -1)
         #
         # # Try to grab the control. If we get it, capture the stick.
@@ -112,7 +126,6 @@ class ROVPanel(wx.Panel):
 
         socket_messages = wx.StaticText(panel, -1, "Socket messages")
 
-
         networking_sizer.Add(socket_messages, 0, wx.ALL | wx.TOP, 5)
         self.messages = wx.TextCtrl(panel, size=(300, 150), style=wx.TE_MULTILINE)
         networking_sizer.Add(self.messages, 0, wx.ALL | wx.CENTER, 5)
@@ -133,7 +146,6 @@ class ROVPanel(wx.Panel):
         cancelButton = wx.Button(panel, -1, 'cancel')
 
         hbox.Add(cancelButton, 0, wx.ALL | wx.LEFT, 10)
-
 
         sizer = wx.GridBagSizer(2, 2)
 
@@ -157,7 +169,6 @@ class ROVPanel(wx.Panel):
         # Capture Joystick events (if they happen)
         self.Bind(wx.EVT_JOYSTICK_EVENTS, self.OnJoystick)
         self.stick.SetMovementThreshold(10)
-
 
         # sboxSizer.Add(hbox, 0, wx.ALL | wx.LEFT, 10)
         sboxSizer.Add(sizer)
