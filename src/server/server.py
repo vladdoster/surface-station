@@ -8,6 +8,7 @@ class BroadcastServerProtocol(WebSocketServerProtocol):
         self.factory.register(self)
 
     def onMessage(self, payload, isBinary):
+        payload = b"Server response: " + payload
         self.factory.broadcast(payload, isBinary)
 
     def onClose(self, wasClean, code, reason):
