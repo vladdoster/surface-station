@@ -68,7 +68,8 @@ class ImageView(wx.Panel):
     def refresh_bitmap(self):
         (w, h, self.x_offset, self.y_offset) = self.get_best_size()
         if w > 0 and h > 0:
-            self.bitmap = wx.Bitmap(self.image.Scale(w, h, self.quality))
+            self.bitmap = wx.Bitmap(self.image)
+            # self.bitmap = wx.Bitmap(self.image.Scale(w, h, self.quality))
             self.Refresh()
 
     def get_best_size(self):
