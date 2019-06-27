@@ -34,25 +34,25 @@ class ROVPanel(wx.Panel):
         # Networking panel
         # networking_controls = NetworkingControlPanel(panel, -1, 'Networking')
         networking_controls = wx.StaticBox(panel, -1, 'Networking:')
-        nmSizer = wx.StaticBoxSizer(networking_controls, wx.VERTICAL)
+        network_sizer = wx.StaticBoxSizer(networking_controls, wx.VERTICAL)
 
-        networking_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        networking_internal_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
         socket_messages = wx.StaticText(panel, -1, "Socket messages")
 
-        networking_sizer.Add(socket_messages, 0, wx.ALL | wx.TOP, 5)
+        networking_internal_sizer.Add(socket_messages, 0, wx.ALL | wx.TOP, 5)
         self.messages = wx.TextCtrl(panel, size=(300, 150), style=wx.TE_MULTILINE)
-        networking_sizer.Add(self.messages, 0, wx.ALL | wx.CENTER, 5)
+        networking_internal_sizer.Add(self.messages, 0, wx.ALL | wx.CENTER, 5)
         self.send_test_message = wx.Button(panel, -1, 'Test message')
         self.send_test_message.Bind(wx.EVT_BUTTON, self.OnClick)
 
-        networking_sizer.Add(self.send_test_message, 0, wx.ALL | wx.CENTER, 5)
+        networking_internal_sizer.Add(self.send_test_message, 0, wx.ALL | wx.CENTER, 5)
 
-        nmSizer.Add(networking_sizer, 0, wx.ALL | wx.CENTER, 10)
+        network_sizer.Add(networking_internal_sizer, 0, wx.ALL | wx.CENTER, 10)
 
         # Joystick
         joystick_controls = wx.StaticBox(panel, -1, 'Joystick Controls:')
-        sboxSizer = wx.StaticBoxSizer(joystick_controls, wx.VERTICAL)
+        joystick_main_sizer = wx.StaticBoxSizer(joystick_controls, wx.VERTICAL)
 
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         sizer = wx.GridBagSizer(2, 2)
@@ -83,33 +83,35 @@ class ROVPanel(wx.Panel):
         webcam_controls = wx.StaticBox(panel, -1, 'Camera:')
         webcam_main_sizer = wx.StaticBoxSizer(networking_controls, wx.VERTICAL)
         #
-        # networking_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        # networking_internal_sizer = wx.BoxSizer(wx.HORIZONTAL)
         webcam_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
         webcam_title = wx.StaticText(panel, -1, "Live Feed")
         webcam_sizer.Add(webcam_title, 0, wx.ALL | wx.TOP, 5)
-        self.camera = Camera(1)
-        self.camera.set_resolution(300, 300)
 
+        # Video stream
+        self.camera = Camera(1)
+        self.camera.set_resolution(300, 400)
         self.video_view = VideoView(self, self.capture)
         self.video_view.start()
-        # self.messages = wx.TextCtrl(panel, size=(300, 150), style=wx.TE_MULTILINE)
         webcam_sizer.Add(self.video_view, 0, wx.ALL | wx.CENTER, 5)
 
 
         # self.send_test_message = wx.Button(panel, -1, 'Test message')
         # self.send_test_message.Bind(wx.EVT_BUTTON, self.OnClick)
-        # networking_sizer.Add(self.send_test_message, 0, wx.ALL | wx.CENTER, 5)
+        # networking_internal_sizer.Add(self.send_test_message, 0, wx.ALL | wx.CENTER, 5)
 
         webcam_main_sizer.Add(webcam_sizer, 0, wx.ALL | wx.CENTER, 10)
         self.Bind(wx.EVT_CLOSE, self.on_close)
 
 
-        sboxSizer.Add(sizer)
-        # vbox.Add(nmSizer, 0, wx.ALL | wx.CENTER, 5)
-        vbox.Add(networking_controls, 0, wx.ALL | wx.CENTER, 5)
+        joystick_main_sizer.Add(sizer)
+        # vbox.Add(network_sizer, 0, wx.ALL | wx.CENTER, 5)
 
-        vbox.Add(sboxSizer, 0, wx.ALL | wx.CENTER, 5)
+        vbox.Add(network_sizer, 0, wx.ALL | wx.CENTER, 5)
+        vbox.Add(joystick_main_sizer, 0, wx.ALL | wx.CENTER, 5)
+        vbox.Add(webcam_main_sizer)
+
         panel.SetSizer(vbox)
         self.Centre()
         panel.Fit()
