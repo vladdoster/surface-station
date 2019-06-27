@@ -19,7 +19,7 @@ class ImageView(wx.Panel):
 
         self.default_image = wx.Image("nusb.png")
         self.image = self.default_image
-        self.bitmap = wx.BitmapFromImage(self.default_image)
+        self.bitmap = wx.Bitmap(self.default_image)
 
         if black:
             self.SetBackgroundColour(wx.BLACK)

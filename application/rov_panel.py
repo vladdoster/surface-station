@@ -6,6 +6,10 @@ import json
 from joystick import POVPanel, JoyButtons, InfoPanel, AxisPanel, JoyPanel, Joystick
 from networking_panel import NetworkingControlPanel
 
+from camera import Camera
+from video_view import VideoView
+
+
 class ROVPanel(wx.Panel):
     """
     """
@@ -28,23 +32,23 @@ class ROVPanel(wx.Panel):
         vbox = wx.BoxSizer(wx.VERTICAL)
         # TODO: Refactor this to individual panels to compose together
         # Networking panel
-        networking_controls = NetworkingControlPanel(panel, -1, 'Networking')
-        # networking_controls = wx.StaticBox(panel, -1, 'Networking:')
-        # nmSizer = wx.StaticBoxSizer(networking_controls, wx.VERTICAL)
-        #
-        # networking_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        #
-        # socket_messages = wx.StaticText(panel, -1, "Socket messages")
-        #
-        # networking_sizer.Add(socket_messages, 0, wx.ALL | wx.TOP, 5)
-        # self.messages = wx.TextCtrl(panel, size=(300, 150), style=wx.TE_MULTILINE)
-        # networking_sizer.Add(self.messages, 0, wx.ALL | wx.CENTER, 5)
-        # self.send_test_message = wx.Button(panel, -1, 'Test message')
-        # self.send_test_message.Bind(wx.EVT_BUTTON, self.OnClick)
-        #
-        # networking_sizer.Add(self.send_test_message, 0, wx.ALL | wx.CENTER, 5)
-        #
-        # nmSizer.Add(networking_sizer, 0, wx.ALL | wx.CENTER, 10)
+        # networking_controls = NetworkingControlPanel(panel, -1, 'Networking')
+        networking_controls = wx.StaticBox(panel, -1, 'Networking:')
+        nmSizer = wx.StaticBoxSizer(networking_controls, wx.VERTICAL)
+
+        networking_sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        socket_messages = wx.StaticText(panel, -1, "Socket messages")
+
+        networking_sizer.Add(socket_messages, 0, wx.ALL | wx.TOP, 5)
+        self.messages = wx.TextCtrl(panel, size=(300, 150), style=wx.TE_MULTILINE)
+        networking_sizer.Add(self.messages, 0, wx.ALL | wx.CENTER, 5)
+        self.send_test_message = wx.Button(panel, -1, 'Test message')
+        self.send_test_message.Bind(wx.EVT_BUTTON, self.OnClick)
+
+        networking_sizer.Add(self.send_test_message, 0, wx.ALL | wx.CENTER, 5)
+
+        nmSizer.Add(networking_sizer, 0, wx.ALL | wx.CENTER, 10)
 
         # Joystick
         joystick_controls = wx.StaticBox(panel, -1, 'Joystick Controls:')
@@ -76,18 +80,30 @@ class ROVPanel(wx.Panel):
 
 
         # # Webcam controls
-        # webcam_controls = wx.StaticBox(panel, -1, 'Networking:')
-        # nmSizer = wx.StaticBoxSizer(networking_controls, wx.VERTICAL)
+        webcam_controls = wx.StaticBox(panel, -1, 'Camera:')
+        webcam_main_sizer = wx.StaticBoxSizer(networking_controls, wx.VERTICAL)
         #
         # networking_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        #
-        # socket_messages = wx.StaticText(panel, -1, "Socket messages")
-        #
-        # networking_sizer.Add(socket_messages, 0, wx.ALL | wx.TOP, 5)
+        webcam_sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        webcam_title = wx.StaticText(panel, -1, "Live Feed")
+        webcam_sizer.Add(webcam_title, 0, wx.ALL | wx.TOP, 5)
+        self.camera = Camera(1)
+        self.camera.set_resolution(300, 300)
+
+        self.video_view = VideoView(self, self.capture)
+        self.video_view.start()
         # self.messages = wx.TextCtrl(panel, size=(300, 150), style=wx.TE_MULTILINE)
-        # networking_sizer.Add(self.messages, 0, wx.ALL | wx.CENTER, 5)
-        #
-        # nmSizer.Add(networking_sizer, 0, wx.ALL | wx.CENTER, 10)
+        webcam_sizer.Add(self.video_view, 0, wx.ALL | wx.CENTER, 5)
+
+
+        # self.send_test_message = wx.Button(panel, -1, 'Test message')
+        # self.send_test_message.Bind(wx.EVT_BUTTON, self.OnClick)
+        # networking_sizer.Add(self.send_test_message, 0, wx.ALL | wx.CENTER, 5)
+
+        webcam_main_sizer.Add(webcam_sizer, 0, wx.ALL | wx.CENTER, 10)
+        self.Bind(wx.EVT_CLOSE, self.on_close)
+
 
         sboxSizer.Add(sizer)
         # vbox.Add(nmSizer, 0, wx.ALL | wx.CENTER, 5)
@@ -143,3 +159,11 @@ class ROVPanel(wx.Panel):
                 proto.sendMessage(msg)
                 # Update UI
                 self.messages.AppendText("Sending to server: {}\n".format(msg))
+
+    def capture(self):
+        return self.camera.capture_image(flush=0)
+
+    def on_close(self, event):
+        self.video_view.stop()
+        event.Skip()
+
