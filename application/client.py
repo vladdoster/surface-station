@@ -1187,7 +1187,8 @@ class ROVPanel(wx.Panel):
             proto = self.GetParent()._app._factory._proto
             if proto:
                 # Send message to server
-                evt = {'x': 1, 'y': 1}
+                evt = {'x': 1, 'y': 1, 'z': .5, 'r': -.1, 'p': .2, 'c': -1,
+                       'button': 17, 'checksum': 987}
                 msg = json.dumps(evt).encode('utf8')
                 proto.sendMessage(msg)
                 # Update UI
@@ -2212,11 +2213,11 @@ class AxisPanel(wx.Panel):
         self.stick = stick
 
         # Defines labels and 'tokens' to identify each
-        # supporte axis.
+        # seperate axis.
         axesList = [
             ('X Axis ', 'X'), ('Y Axis ', 'Y'),
-            ('Z Axis ', 'Z'), ('Rudder ', 'Rudder'),
-            ('U Axis ', 'U'), ('V Axis ', 'V')
+            ('Z Axis ', 'Z'), ('Roll ', 'R'),
+            ('Pitch ', 'P'), ('Yaw', 'C')
         ]
 
         # Contains a list of all axis initialized.
