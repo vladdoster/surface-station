@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import wx
 import json
-from joystick import POVPanel, JoyButtons, InfoPanel, AxisPanel, JoyPanel, Joystick
-from networking_panel import NetworkingControlPanel
 
-from camera import Camera
-from video_view import VideoView
+import wx
+
+from joystick import POVPanel, JoyButtons, InfoPanel, AxisPanel, JoyPanel, Joystick
 
 
 class ROVPanel(wx.Panel):
@@ -78,39 +76,11 @@ class ROVPanel(wx.Panel):
         self.Bind(wx.EVT_JOYSTICK_EVENTS, self.OnJoystick)
         self.stick.SetMovementThreshold(10)
 
-
-        # # Webcam controls
-        webcam_controls = wx.StaticBox(panel, -1, 'Camera:')
-        webcam_main_sizer = wx.StaticBoxSizer(networking_controls, wx.VERTICAL)
-        #
-        # networking_internal_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        webcam_sizer = wx.BoxSizer(wx.HORIZONTAL)
-
-        webcam_title = wx.StaticText(panel, -1, "Live Feed")
-        webcam_sizer.Add(webcam_title, 0, wx.ALL | wx.TOP, 5)
-
-        # Video stream
-        self.camera = Camera(1)
-        self.camera.set_resolution(300, 400)
-        self.video_view = VideoView(self, self.capture)
-        self.video_view.start()
-        webcam_sizer.Add(self.video_view, 0, wx.ALL | wx.CENTER, 5)
-
-
-        # self.send_test_message = wx.Button(panel, -1, 'Test message')
-        # self.send_test_message.Bind(wx.EVT_BUTTON, self.OnClick)
-        # networking_internal_sizer.Add(self.send_test_message, 0, wx.ALL | wx.CENTER, 5)
-
-        webcam_main_sizer.Add(webcam_sizer, 0, wx.ALL | wx.CENTER, 10)
-        self.Bind(wx.EVT_CLOSE, self.on_close)
-
-
         joystick_main_sizer.Add(sizer)
         # vbox.Add(network_sizer, 0, wx.ALL | wx.CENTER, 5)
 
         vbox.Add(network_sizer, 0, wx.ALL | wx.CENTER, 5)
         vbox.Add(joystick_main_sizer, 0, wx.ALL | wx.CENTER, 5)
-        vbox.Add(webcam_main_sizer)
 
         panel.SetSizer(vbox)
         self.Centre()
@@ -161,11 +131,3 @@ class ROVPanel(wx.Panel):
                 proto.sendMessage(msg)
                 # Update UI
                 self.messages.AppendText("Sending to server: {}\n".format(msg))
-
-    def capture(self):
-        return self.camera.capture_image(flush=0)
-
-    def on_close(self, event):
-        self.video_view.stop()
-        event.Skip()
-

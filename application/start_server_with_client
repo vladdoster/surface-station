@@ -1,9 +1,0 @@
-#!/bin/bash
-
-echo starting server
-cd server/
-python3 server.py
-echo starting client
-cd ../application/
-python3 client.py
-echo started apps

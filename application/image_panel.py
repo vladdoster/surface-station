@@ -4,15 +4,16 @@ import wx
 # Networking panel
 
 
-class NetworkingControlPanel(wx.StaticBox):
+class VideoStreamPanel(wx.StaticBox):
     def __init__(self, *args, **kwargs):
-        super(NetworkingControlPanel, self).__init__(*args, **kwargs)
+        super(VideoStreamPanel, self).__init__(*args, **kwargs)
         self.init_ui()
 
     def init_ui(self):
         network_controls_sizer = wx.StaticBoxSizer(self, wx.VERTICAL)
         messages_sizer = wx.BoxSizer(wx.HORIZONTAL)
         socket_messages = wx.StaticText()
+        # socket_messages.SetLabel("Socket Messages")
         messages_sizer.Add(socket_messages, 0, wx.ALL | wx.TOP, 5)
         self.messages = wx.TextCtrl(size=(300, 150), style=wx.TE_MULTILINE)
         messages_sizer.Add(self.messages, 0, wx.ALL | wx.CENTER, 5)
@@ -25,7 +26,7 @@ class NetworkingControlPanel(wx.StaticBox):
 
     def on_click(self, event):
         if self.GetParent()._app._factory:
-            proto = self.GetParent()._app._factory1._proto
+            proto = self.GetParent()._app._factory._proto
             if proto:
                 # Send message to server
                 evt = {'roll': 1.0, 'pitch': 1.0, 'yaw': 1.0, 'x': 1, 'y': 1, 'z': 1}
