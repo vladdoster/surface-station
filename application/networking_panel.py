@@ -25,7 +25,7 @@ class NetworkingControlPanel(wx.StaticBox):
 
     def on_click(self, event):
         if self.GetParent()._app._factory:
-            proto = self.GetParent()._app._factory1._proto
+            proto = self.GetParent()._app._factory._proto
             if proto:
                 # Send message to server
                 evt = {'roll': 1.0, 'pitch': 1.0, 'yaw': 1.0, 'x': 1, 'y': 1, 'z': 1}

@@ -1,12 +1,5 @@
 import base64
 import io
-from PIL import Image
-import cv2
-import numpy as np
-import wx
-from twisted.internet.protocol import ReconnectingClientFactory
-
-
 import json
 import os
 import time
@@ -14,23 +7,21 @@ from subprocess import Popen, PIPE
 
 import wx
 import wx.html
+from PIL import Image
 from autobahn.twisted import WebSocketClientProtocol, WebSocketClientFactory
+from twisted.internet.protocol import ReconnectingClientFactory
 from wx.adv import SPLASH_CENTRE_ON_SCREEN, SPLASH_TIMEOUT, SplashScreen, Joystick
 
 from joystick import InfoPanel, JoyPanel, POVPanel, AxisPanel, JoyButtons
 
 
 class AUVPanel(wx.Panel):
-    """
-    """
 
     def __init__(self, parent, ):
         wx.Panel.__init__(self, parent, -1)
 
 
 class ROVPanel(wx.Panel):
-    """
-    """
 
     def __init__(self, parent):
         """Constructor"""
