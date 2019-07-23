@@ -1,5 +1,4 @@
 import base64
-import io
 import json
 import os
 import time
@@ -7,11 +6,12 @@ from subprocess import Popen, PIPE
 
 import wx
 import wx.html
-from PIL import Image
 from autobahn.twisted import WebSocketClientProtocol, WebSocketClientFactory
 from twisted.internet.protocol import ReconnectingClientFactory
 from wx.adv import SPLASH_CENTRE_ON_SCREEN, SPLASH_TIMEOUT, SplashScreen, Joystick
 
+from networking.factories import MyClientFactory
+from networking.protocols import CameraStreamProtocol, JoystickExecutorProtocol
 from joystick import InfoPanel, JoyPanel, POVPanel, AxisPanel, JoyButtons
 
 
@@ -126,8 +126,8 @@ class ROVPanel(wx.Panel):
         self.stick = None
 
     def OnClick(self, event):
-        if self.GetParent()._app._factory:
-            proto = self.GetParent()._app._factory._proto
+        if self.GetParent()._app._joystick_factory:
+            proto = self.GetParent()._app._joystick_factory._proto
             if proto:
                 # Send message to server
                 evt = {'x': 1, 'y': 1, 'z': .5, 'r': -.1, 'p': .2, 'c': -1,
@@ -234,76 +234,6 @@ class MainFrame(wx.Frame):
             print("No browser env var set, creating popup")
 
 
-class MyClientProtocol(WebSocketClientProtocol):
-    """
-    Our protocol for WebSocket client connections.
-    """
-
-    def onOpen(self):
-        print("WebSocket connection open.")
-
-        # the WebSocket connection is open. we store ourselves on the
-        # factory object, so that we can access this protocol instance
-        # from wxPython, e.g. to use sendMessage() for sending WS msgs
-        ##
-        self.factory._proto = self
-        self._received = 0
-
-    def onMessage(self, payload, isBinary):
-        # a WebSocket message was received. now interpret it, possibly
-        # accessing the wxPython app `self.factory._app` or our
-        # single UI frame `self.factory._app._frame`
-        ##
-        if isBinary:
-            print("Binary message received: {0} bytes".format(len(payload)))
-        else:
-            print("Text message received, saving to a file")
-
-            # decode the image and save locally
-            with open("image_received.jpg", "wb") as image_file:
-                image_file.write(base64.b64decode(payload))
-
-        f = io.BytesIO(base64.b64decode(payload))
-        pilimage = Image.open(f)
-        frame = self.factory._app._frame
-        # frame.rov_panel.messages.AppendText("{}\n".format(self._received))
-        frame.rov_panel.messages.AppendText("{}\n".format(payload))
-
-    def onClose(self, wasClean, code, reason):
-        print("WebSocket connection closed: {0}".format(reason))
-
-        # the WebSocket connection is gone. clear the reference to ourselves
-        # on the factory object. when accessing this protocol instance from
-        # wxPython, always check if the ref is None. only use it when it's
-        # not None (which means, we are actually connected)
-        ##
-        self.factory._proto = None
-
-
-class MyClientFactory(ReconnectingClientFactory, WebSocketClientFactory):
-    """
-    Our factory for WebSocket client connections.
-    """
-    protocol = MyClientProtocol
-
-    maxDelay = 10
-    maxRetries = 5
-
-    def __init__(self, url, app):
-        WebSocketClientFactory.__init__(self, url)
-        self._app = app
-        self._proto = None
-
-    def startedConnecting(self, connector):
-        print('Started to connect.')
-
-    def clientConnectionLost(self, connector, reason):
-        print('Lost connection. Reason: {}'.format(reason))
-        ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
-
-    def clientConnectionFailed(self, connector, reason):
-        print('Connection failed. Reason: {}'.format(reason))
-        ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
 
 
 if __name__ == "__main__":
@@ -342,15 +272,20 @@ if __name__ == "__main__":
 
                 """)
     app = wx.App(False)
-    app._factory = None
+    app._camera_factory = None
+    app._joystick_factory = None
 
     app._frame = MainFrame(app)
     timer = wx.Timer()
     time.sleep(5)
     app._frame.Show()
-
     reactor.registerWxApp(app)
-    app._factory = MyClientFactory(u"ws://127.0.0.1:9000", app)
-    # connectWS(app._factory)
-    reactor.connectTCP("127.0.0.1", 9000, app._factory)
+
+    # Create factory (singleton connection pattern)
+    app._camera_factory = MyClientFactory(u"ws://127.0.0.1:9000", app, protocol=CameraStreamProtocol)
+    app._joystick_factory = MyClientFactory(u"ws://127.0.0.1:9001", app, protocol=JoystickExecutorProtocol)
+    # Connect to host
+    reactor.connectTCP("127.0.0.1", 9000, app._camera_factory)
+    reactor.connectTCP("127.0.0.1", 9001, app._joystick_factory)
+    # Start twisted event loop
     reactor.run()
