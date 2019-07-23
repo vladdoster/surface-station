@@ -14,7 +14,7 @@ class NetworkingControlPanel(wx.StaticBox):
         messages_sizer = wx.BoxSizer(wx.HORIZONTAL)
         socket_messages = wx.StaticText()
         messages_sizer.Add(socket_messages, 0, wx.ALL | wx.TOP, 5)
-        self.messages = wx.TextCtrl(size=(300, 150), style=wx.TE_MULTILINE)
+        self.messages = wx.TextCtrl(size=(960, 1280), style=wx.TE_MULTILINE)
         messages_sizer.Add(self.messages, 0, wx.ALL | wx.CENTER, 5)
 
         self.send_test_message = wx.Button()

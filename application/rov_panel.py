@@ -77,10 +77,12 @@ class ROVPanel(wx.Panel):
         self.stick.SetMovementThreshold(10)
 
         joystick_main_sizer.Add(sizer)
+
         # vbox.Add(network_sizer, 0, wx.ALL | wx.CENTER, 5)
 
         vbox.Add(network_sizer, 0, wx.ALL | wx.CENTER, 5)
         vbox.Add(joystick_main_sizer, 0, wx.ALL | wx.CENTER, 5)
+
 
         panel.SetSizer(vbox)
         self.Centre()
