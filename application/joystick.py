@@ -973,13 +973,13 @@ a regular basis.
 <h2>Data types</h2>
 
 Data from the joystick comes in two flavors: that which defines the boundaries, and that
-which defines the current state of the stick. Thus, we have Get*Max() and Get*Min() 
+which defines the current state of the stick. Thus, we have Get*Max() and Get*Min()
 methods for all axes, the max number of axes, the max number of buttons, and so on. In
 general, this data can be read once and stored to speed computation up.
 
 <h3>Analog Input</h3>
 
-Analog input (the axes) is delivered as a whole, positive number. If you need to know 
+Analog input (the axes) is delivered as a whole, positive number. If you need to know
 if the axis is at zero (centered) or not, you will first have to calculate that center
 based on the max and min values. The demo shows a bar graph for each axis expressed
 in native numerical format, plus a 'centered' X-Y axis compass showing the relationship
@@ -995,29 +995,29 @@ Button state is retrieved as one int that contains each button state mapped to a
 You get the state of a button by AND-ing its bit against the returned value, in the form
 
 <pre>
-     # assume buttonState is what the stick returned, and buttonBit 
+     # assume buttonState is what the stick returned, and buttonBit
      # is the bit you want to examine
-     
+
      if (buttonState & ( 1 &lt;&lt; buttonBit )) :
          # button pressed, do something with it
 </pre>
 
-<p>The problem here is that some OSs return a 32-bit value for up to 32 buttons 
-(imagine <i>that</i> stick!). Python V2.3 will generate an exception for bit 
+<p>The problem here is that some OSs return a 32-bit value for up to 32 buttons
+(imagine <i>that</i> stick!). Python V2.3 will generate an exception for bit
 values over 30. For that reason, this demo is limited to 16 buttons.
 
 <p>Note that more than one button can be pressed at a time, so be sure to check all of them!
-     
+
 
 <h3>POV Input</h3>
 
 POV hats come in two flavors: four-way, and continuous. four-way POVs are restricted to
 the cardinal points of the compass; continuous, or CTS POV hats can deliver input in
 .01 degree increments, theoreticaly. The data is returned as a whole number; the last
-two digits are considered to be to the right of the decimal point, so in order to 
-use this information, you need to divide by 100 right off the bat. 
+two digits are considered to be to the right of the decimal point, so in order to
+use this information, you need to divide by 100 right off the bat.
 
-<p>Different methods are provided to retrieve the POV data for a CTS hat 
+<p>Different methods are provided to retrieve the POV data for a CTS hat
 versus a four-way hat.
 
 <h2>Caveats</h2>
@@ -1036,9 +1036,9 @@ rely on wx.JoystickEvents to tell you when something has changed, necessarilly.
 <p>Fortunately, there is an easy workaround. In the top level frame, create a wx.Timer
 that will poll the stick at a set interval. Of course, if you do this, you might as
 well forgo catching wxEVT_JOYSTICK_* events at all and rely on the timer to do the
-polling. 
+polling.
 
-<p>Ideally, the timer should be a one-shot; after it fires, collect and process data as 
+<p>Ideally, the timer should be a one-shot; after it fires, collect and process data as
 needed, then re-start the timer, possibly using wx.CallAfter().
 
 </body>
