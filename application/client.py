@@ -23,7 +23,6 @@ class AUVPanel(wx.Panel):
 class ROVPanel(wx.Panel):
 
     def __init__(self, parent):
-        """Constructor"""
         super(ROVPanel, self).__init__(parent)
 
         panel = wx.Panel(self)
@@ -92,16 +91,39 @@ class ROVPanel(wx.Panel):
         ######################################
         ## Image panel
         ######################################
+
         image_viewing_static_box = wx.StaticBox(panel, -1, 'Image info:')
         image_viewing_sizer = wx.StaticBoxSizer(image_viewing_static_box, wx.HORIZONTAL)
+
+        # Raw image stream
+        raw_image_sizer = wx.BoxSizer(wx.VERTICAL)
         img = wx.Image(320, 240)
         self.raw_camera_stream = wx.StaticBitmap(panel, wx.ID_ANY,
                                                  wx.BitmapFromImage(img))
+        raw_image_title = wx.StaticText(panel, -1, "Raw image stream")
+        raw_image_sizer.Add(self.raw_camera_stream, 0, wx.ALL)
+        raw_image_sizer.Add(raw_image_title, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+        # ML processed image
+        processed_image_sizer = wx.BoxSizer(wx.VERTICAL)
         processed_img = wx.Image(320, 240)
         self.processed_image_stream = wx.StaticBitmap(panel, wx.ID_ANY,
                                                       wx.BitmapFromImage(processed_img))
-        image_viewing_sizer.Add(self.raw_camera_stream, 0, wx.ALL, 5)
-        image_viewing_sizer.Add(self.processed_image_stream, 0, wx.ALL, 5)
+        processed_image_title = wx.StaticText(panel, -1, "Processed image stream")
+        processed_image_data_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        processed_image_data_title = wx.StaticText(panel, -1, "Classification %'s:")
+        processed_image_numbers_sizer = wx.BoxSizer(wx.VERTICAL)
+        processed_image_healthy_coral_percentage = wx.StaticText(panel, -1, "0%")
+        processed_image_bleached_coral_percentage = wx.StaticText(panel, -1, "0%")
+        processed_image_numbers_sizer.Add(processed_image_healthy_coral_percentage, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+        processed_image_numbers_sizer.Add(processed_image_bleached_coral_percentage, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+        processed_image_data_sizer.Add(processed_image_data_title, 0, wx.CENTER | wx.ALIGN_CENTER_VERTICAL, 5)
+        processed_image_data_sizer.Add(processed_image_numbers_sizer, 0, wx.ALL, 5)
+
+        processed_image_sizer.Add(self.processed_image_stream, 0, wx.ALL)
+        processed_image_sizer.Add(processed_image_title, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+        processed_image_sizer.Add(processed_image_data_sizer, 0, wx.ALL | wx.ALIGN_CENTER)
+        image_viewing_sizer.Add(raw_image_sizer, 0, wx.ALL, 5)
+        image_viewing_sizer.Add(processed_image_sizer, 0, wx.ALL, 5)
 
         ######################################
         ## Joystick panel
@@ -135,6 +157,8 @@ class ROVPanel(wx.Panel):
                 proto.sendMessage(msg)
                 # Update UI
                 self.messages.AppendText("Sending to server: {}\n".format(msg))
+            else:
+                self.messages.AppendText("Check websocket connection")
 
     def check_docker_status(self):
         global container_id
@@ -175,6 +199,7 @@ class MainFrame(wx.Frame):
         self.SetSizer(self.sizer)
         self.create_menu_bar()
 
+    # TODO: Refactor this into its own panel file
     def menu_data(self):
         return (("&File",
                  ("&Switch Mode", "Switch operation mode", self.on_panel_switch),
@@ -203,7 +228,6 @@ class MainFrame(wx.Frame):
         return menu
 
     def on_panel_switch(self, event):
-        """"""
         if self.auv_panel.IsShown():
             self.SetTitle("ROV Controls Showing")
             self.auv_panel.Hide()
