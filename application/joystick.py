@@ -920,7 +920,7 @@ class JoystickPanel(wx.Panel):
     def OnJoystick(self, evt=None):
         if not self.stick:
             return
-
+        print("Joystick movement detected")
         self.axes.Update()
         self.joy.Update()
         self.pov.Update()
