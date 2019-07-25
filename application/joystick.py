@@ -859,7 +859,7 @@ class AxisPanel(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
-class JoystickDemoPanel(wx.Panel):
+class JoystickPanel(wx.Panel):
 
     def __init__(self, parent, log):
 
@@ -911,7 +911,7 @@ class JoystickDemoPanel(wx.Panel):
         # Do not try this without a stick
         if not self.stick:
             return
-
+        print("Calibrating joystick")
         self.info.Calibrate()
         self.axes.Calibrate()
         self.pov.Calibrate()
@@ -935,15 +935,15 @@ class JoystickDemoPanel(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
-def runTest(frame, nb, log):
-    if haveJoystick:
-        win = JoystickDemoPanel(nb, log)
-        return win
-    else:
-        from Main import MessagePanel
-        win = MessagePanel(nb, 'wx.Joystick is not available on this platform.',
-                           'Sorry', wx.ICON_WARNING)
-        return win
+# def runTest(frame, nb, log):
+#     if haveJoystick:
+#         win = JoystickDemoPanel(nb, log)
+#         return win
+#     else:
+#         from Main import MessagePanel
+#         win = MessagePanel(nb, 'wx.Joystick is not available on this platform.',
+#                            'Sorry', wx.ICON_WARNING)
+#         return win
 
 
 # ----------------------------------------------------------------------------

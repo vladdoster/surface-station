@@ -1,15 +1,17 @@
 import json
 import os
 import time
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 
+import docker
 import wx
 import wx.html
-from wx.adv import SPLASH_CENTRE_ON_SCREEN, SPLASH_TIMEOUT, SplashScreen, Joystick
-
-from joystick import InfoPanel, JoyPanel, POVPanel, AxisPanel, JoyButtons
+from joystick import JoystickPanel
 from networking.factories import MyClientFactory
 from networking.protocols import CameraStreamProtocol, JoystickExecutorProtocol
+from wx.adv import SPLASH_CENTRE_ON_SCREEN, SPLASH_TIMEOUT, SplashScreen
+
+global container_id, log
 
 
 class AUVPanel(wx.Panel):
@@ -24,18 +26,9 @@ class ROVPanel(wx.Panel):
         """Constructor"""
         super(ROVPanel, self).__init__(parent)
 
-        try:
-            self.stick = Joystick()
-            self.stick.SetCapture(self)
-            # Calibrate our controls
-            wx.CallAfter(self.Calibrate)
-            wx.CallAfter(self.OnJoystick)
-        except NotImplementedError as v:
-            wx.MessageBox(str(v), "Exception Message")
-            self.stick = None
-
         panel = wx.Panel(self)
         panel_vbox = wx.BoxSizer(wx.VERTICAL)
+
         websocket_and_networking_hbox = wx.BoxSizer(wx.HORIZONTAL)
         ######################################
         ## Websocket status information panel
@@ -43,6 +36,7 @@ class ROVPanel(wx.Panel):
         websocket_status_static_box = wx.StaticBox(panel, -1, 'Websockets info:')
         websocket_status_sizer = wx.StaticBoxSizer(websocket_status_static_box, wx.HORIZONTAL)
 
+        # auv camera websocket connection indicator
         ws_camera_sizer = wx.BoxSizer(wx.VERTICAL)
         camera_connection_title = wx.StaticText(panel, -1, "Camera")
         # set color addressable panel
@@ -52,6 +46,7 @@ class ROVPanel(wx.Panel):
         ws_camera_sizer.Add(camera_connection_title, 0, wx.ALL | wx.TOP, 5)
         ws_camera_sizer.Add(self.camera_status_pnl, 0, wx.ALL | wx.ALIGN_CENTER, 5)
 
+        # auv joystick websocket connection indicator
         ws_joystick_sizer = wx.BoxSizer(wx.VERTICAL)
         joystick_connection_title = wx.StaticText(panel, -1, "Joystick")
         self.joystick_status_pnl_col = wx.Colour(0, 0, 0)
@@ -60,8 +55,18 @@ class ROVPanel(wx.Panel):
         ws_joystick_sizer.Add(joystick_connection_title, 0, wx.ALL | wx.TOP, 5)
         ws_joystick_sizer.Add(self.joystick_status_pnl, 0, wx.ALL | wx.ALIGN_CENTER, 5)
 
+        # ML image classification docker container running indicator
+        ml_docker_container_sizer = wx.BoxSizer(wx.VERTICAL)
+        ml_docker_container_title = wx.StaticText(panel, -1, "ML")
+        self.ml_docker_container_status_pnl_col = wx.Colour(0, 0, 0)
+        self.ml_docker_container_status_pnl = wx.Panel(panel, size=(20, 20))
+        self.ml_docker_container_status_pnl.SetBackgroundColour(self.ml_docker_container_status_pnl_col)
+        ml_docker_container_sizer.Add(ml_docker_container_title, 0, wx.ALL | wx.TOP, 5)
+        ml_docker_container_sizer.Add(self.ml_docker_container_status_pnl, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+
         websocket_status_sizer.Add(ws_joystick_sizer, 0, wx.ALL | wx.TOP, 5)
         websocket_status_sizer.Add(ws_camera_sizer, 0, wx.ALL | wx.TOP, 5)
+        websocket_status_sizer.Add(ml_docker_container_sizer, 0, wx.ALL | wx.TOP, 5)
 
         ######################################
         ## Networking panel
@@ -73,7 +78,7 @@ class ROVPanel(wx.Panel):
         ws_status = wx.StaticText(panel, -1, "Socket messages")
         networking_input_sizer = wx.BoxSizer(wx.VERTICAL)
         self.send_test_message = wx.Button(panel, -1, 'Test message')
-        self.send_test_message.Bind(wx.EVT_BUTTON, self.OnClick)
+        self.send_test_message.Bind(wx.EVT_BUTTON, self.on_test_message_btn_click)
 
         self.messages = wx.TextCtrl(panel, size=(450, 75), style=wx.TE_MULTILINE)
         networking_input_sizer.Add(ws_status, 0, wx.ALL | wx.ALIGN_TOP | wx.CENTER, 5)
@@ -91,37 +96,21 @@ class ROVPanel(wx.Panel):
         image_viewing_sizer = wx.StaticBoxSizer(image_viewing_static_box, wx.HORIZONTAL)
         img = wx.Image(320, 240)
         self.raw_camera_stream = wx.StaticBitmap(panel, wx.ID_ANY,
-                                         wx.BitmapFromImage(img))
+                                                 wx.BitmapFromImage(img))
         processed_img = wx.Image(320, 240)
         self.processed_image_stream = wx.StaticBitmap(panel, wx.ID_ANY,
-                                                 wx.BitmapFromImage(processed_img))
-        image_viewing_sizer.Add(self.raw_camera_stream, 0, wx.ALL)
-        image_viewing_sizer.Add(self.processed_image_stream, 0, wx.ALL)
-
+                                                      wx.BitmapFromImage(processed_img))
+        image_viewing_sizer.Add(self.raw_camera_stream, 0, wx.ALL, 5)
+        image_viewing_sizer.Add(self.processed_image_stream, 0, wx.ALL, 5)
 
         ######################################
         ## Joystick panel
         ######################################
         joystick_controls = wx.StaticBox(panel, -1, 'Joystick Controls:')
         joystick_main_sizer = wx.StaticBoxSizer(joystick_controls, wx.VERTICAL)
-        hbox = wx.BoxSizer(wx.HORIZONTAL)
-        joystick_grid_sizer = wx.GridBagSizer(2, 2)
-        self.info = InfoPanel(self, self.stick)
-        joystick_grid_sizer.Add(self.info, (0, 0), (1, 3), wx.ALL | wx.GROW, 2)
-        self.info.Bind(wx.EVT_BUTTON, self.Calibrate)
-        self.joy = JoyPanel(self, self.stick)
-        joystick_grid_sizer.Add(self.joy, (1, 0), (1, 1), wx.ALL | wx.GROW, 2)
-        self.pov = POVPanel(self, self.stick)
-        joystick_grid_sizer.Add(self.pov, (1, 1), (1, 2), wx.ALL | wx.GROW, 2)
-        self.axes = AxisPanel(self, self.stick)
-        joystick_grid_sizer.Add(self.axes, (2, 0), (1, 3), wx.ALL | wx.GROW, 2)
-        self.buttons = JoyButtons(self, self.stick)
-        joystick_grid_sizer.Add(self.buttons, (3, 0), (1, 3),
-                                wx.ALL | wx.EXPAND | wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL, 1)
-        # Capture Joystick events (if they happen)
-        self.Bind(wx.EVT_JOYSTICK_EVENTS, self.OnJoystick)
-        self.stick.SetMovementThreshold(10)
-        joystick_main_sizer.Add(joystick_grid_sizer)
+        global log
+        joystick_panel = JoystickPanel(panel, log)
+        joystick_main_sizer.Add(joystick_panel)
 
         # Add everything to main panel
         websocket_and_networking_hbox.Add(websocket_status_sizer, 0, wx.ALL | wx.CENTER, 5)
@@ -132,36 +121,10 @@ class ROVPanel(wx.Panel):
         panel.SetSizer(panel_vbox)
         self.Centre()
         panel.Fit()
+        # Start docker status check
+        self.check_docker_status()
 
-    def add_networking_panel(self, evt=None):
-        pass
-
-    def Calibrate(self, evt=None):
-        # Do not try this without a stick
-        if not self.stick:
-            return
-
-        self.info.Calibrate()
-        self.axes.Calibrate()
-        self.pov.Calibrate()
-        self.buttons.Calibrate()
-
-    def OnJoystick(self, evt=None):
-        if not self.stick:
-            return
-
-        self.axes.Update()
-        self.joy.Update()
-        self.pov.Update()
-        if evt is not None and evt.IsButton():
-            self.buttons.Update()
-
-    def ShutdownDemo(self):
-        if self.stick:
-            self.stick.ReleaseCapture()
-        self.stick = None
-
-    def OnClick(self, event):
+    def on_test_message_btn_click(self, event):
         if self.GetParent()._app._joystick_factory:
             proto = self.GetParent()._app._joystick_factory._proto
             if proto:
@@ -173,21 +136,24 @@ class ROVPanel(wx.Panel):
                 # Update UI
                 self.messages.AppendText("Sending to server: {}\n".format(msg))
 
-
-class MenuBar(wx.MenuBar):
-    def __init__(self, parent):
-        wx.MenuBar.__init__(self, parent=parent)
-        fileMenu = wx.Menu()
-        switch_panels_menu_item = fileMenu.Append(wx.ID_ANY,
-                                                  "Switch modes")
-        parent.Bind(wx.EVT_MENU, self.onSwitchPanels,
-                    switch_panels_menu_item)
-        self.Append(fileMenu, '&File')
+    def check_docker_status(self):
+        global container_id
+        if container_id:
+            try:
+                client = docker.client.from_env()
+                status = client.containers.get(container_id).status
+                if status == "running":
+                    self.ml_docker_container_status_pnl.SetBackgroundColour("#228B22")
+                else:
+                    self.ml_docker_container_status_pnl.SetBackgroundColour("#FF0000")
+            except Exception as e:
+                print("Error getting ml container status")
+                self.ml_docker_container_status_pnl.SetBackgroundColour("#FF0000")
+        wx.CallLater(10000, self.check_docker_status)
 
 
 class MainFrame(wx.Frame):
 
-    # ----------------------------------------------------------------------
     def __init__(self, app):
         self.frame_number = 1
         wx.Frame.__init__(self, None, wx.ID_ANY,
@@ -207,26 +173,26 @@ class MainFrame(wx.Frame):
         self.sizer.Add(self.auv_panel, 1, wx.EXPAND)
         self.sizer.Add(self.rov_panel, 1, wx.EXPAND)
         self.SetSizer(self.sizer)
-        self.createMenuBar()
+        self.create_menu_bar()
 
-    def menuData(self):
+    def menu_data(self):
         return (("&File",
-                 ("&Switch Mode", "Switch operation mode", self.onSwitchPanels),
-                 ("&Quit", "Quit", self.OnCloseWindow)),
+                 ("&Switch Mode", "Switch operation mode", self.on_panel_switch),
+                 ("&Quit", "Quit", self.close_window)),
                 ("&Options",
-                 ("&Upload Model", "Upload a ML model", self.UploadModel),
+                 ("&Upload Model", "Upload a ML model", self.upload_model),
                  ("", "", ""),
-                 ("&Documentation", "Show documentation", self.OnDocumentation)))
+                 ("&Documentation", "Show documentation", self.documentation)))
 
-    def createMenuBar(self):
+    def create_menu_bar(self):
         menuBar = wx.MenuBar()
-        for eachMenuData in self.menuData():
+        for eachMenuData in self.menu_data():
             menuLabel = eachMenuData[0]
             menuItems = eachMenuData[1:]
-            menuBar.Append(self.createMenu(menuItems), menuLabel)
+            menuBar.Append(self.create_menu(menuItems), menuLabel)
         self.SetMenuBar(menuBar)
 
-    def createMenu(self, menuData):
+    def create_menu(self, menuData):
         menu = wx.Menu()
         for eachLabel, eachStatus, eachHandler in menuData:
             if not eachLabel:
@@ -236,8 +202,7 @@ class MainFrame(wx.Frame):
             self.Bind(wx.EVT_MENU, eachHandler, menuItem)
         return menu
 
-    # ----------------------------------------------------------------------
-    def onSwitchPanels(self, event):
+    def on_panel_switch(self, event):
         """"""
         if self.auv_panel.IsShown():
             self.SetTitle("ROV Controls Showing")
@@ -250,16 +215,16 @@ class MainFrame(wx.Frame):
         self.Layout()
 
     # Empty event handlers needs to compile
-    def UploadModel(self, event):
+    def upload_model(self, event):
         pass
 
-    def OnOptions(self, event):
+    def options(self, event):
         pass
 
-    def OnCloseWindow(self, event):
+    def close_window(self, event):
         self.Destroy()
 
-    def OnDocumentation(self, event):
+    def documentation(self, event):
         try:
             browser = os.environ.get('BROWSER')
             doc_url = 'https://vdoster.com'
@@ -267,7 +232,22 @@ class MainFrame(wx.Frame):
             stdout, stderr = process.communicate()
             print(stdout)
         except KeyError as e:
-            print("No browser env var set, creating popup")
+            print("No browser env var set, creating popup\n\n{}".format(e))
+
+
+def start_ml_docker_container():
+    client = docker.from_env()
+    # kill all running containers
+    running_containers = client.containers.list()
+    for container in running_containers:
+        container.kill()
+    try:
+        global container_id
+        container_id = client.containers.run(image="gcr.io/automl-vision-ondevice/gcloud-container-1.12.0:latest",
+                                             detach=True).id
+    except docker.errors.APIError as e:
+        print("Error starting ml container\n\n{}".format(e))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -281,7 +261,9 @@ if __name__ == "__main__":
     from twisted.internet import reactor
     from twisted.python import log
 
+    global log
     log.startLogging(sys.stdout)
+    start_ml_docker_container()
     print("""
 
                 ######## ##    ## ########     ###    ########  ########  
@@ -317,5 +299,6 @@ if __name__ == "__main__":
     # Connect to host
     reactor.connectTCP("127.0.0.1", 9000, app._camera_factory)
     reactor.connectTCP("127.0.0.1", 9001, app._joystick_factory)
+
     # Start twisted event loop
     reactor.run()
