@@ -927,6 +927,8 @@ class JoystickPanel(wx.Panel):
         if evt is not None and evt.IsButton():
             self.buttons.Update()
 
+        # This is where custom messages would be sent from
+
     def ShutdownDemo(self):
         if self.stick:
             self.stick.ReleaseCapture()
