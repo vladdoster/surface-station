@@ -1,6 +1,3 @@
-import os
-from subprocess import Popen
-
 import wx
 
 
@@ -16,17 +13,33 @@ class MenuBar(wx.MenuBar):
             menuItem = self.Append(-1, eachLabel, eachStatus)
             self.Bind(wx.EVT_MENU, eachHandler, menuItem)
 
-    def menuData(self):
-        return (("&File",
-                 ("&Switch Mode", "Switch operation mode", self.onSwitchPanels),
-                 ("&Quit", "Quit", self.OnCloseWindow)),
-                ("&Options",
-                 ("&Upload Model", "Upload a ML model", self.UploadModel),
-                 ("", "", ""),
-                 ("&Documentation", "Show documentation", self.OnDocumentation)))
+        for eachMenuData in self.menu_data():
+            menuLabel = eachMenuData[0]
+            menuItems = eachMenuData[1:]
+            menuBar.Append(self.create_menu(menuItems), menuLabel)
 
-    def onSwitchPanels(self, event):
-        """"""
+    # TODO: Refactor this into its own panel file
+    def menu_data(self):
+        return (("&File",
+                 ("&Switch Mode", "Switch operation mode", self.on_panel_switch),
+                 ("&Quit", "Quit", self.close_window)),
+                ("&Options",
+                 ("&Upload Model", "Upload a ML model", self.upload_model),
+                 ("", "", ""),
+                 ("&Documentation", "Show documentation", self.documentation)))
+
+
+    def create_menu(self, menuData):
+        menu = wx.Menu()
+        for eachLabel, eachStatus, eachHandler in menuData:
+            if not eachLabel:
+                menu.AppendSeparator()
+                continue
+            menuItem = menu.Append(-1, eachLabel, eachStatus)
+            self.Bind(wx.EVT_MENU, eachHandler, menuItem)
+        return menu
+
+    def on_panel_switch(self, event):
         if self.auv_panel.IsShown():
             self.SetTitle("ROV Controls Showing")
             self.auv_panel.Hide()
@@ -38,16 +51,16 @@ class MenuBar(wx.MenuBar):
         self.Layout()
 
     # Empty event handlers needs to compile
-    def UploadModel(self, event):
+    def upload_model(self, event):
         pass
 
-    def OnOptions(self, event):
+    def options(self, event):
         pass
 
-    def OnCloseWindow(self, event):
+    def close_window(self, event):
         self.Destroy()
 
-    def OnDocumentation(self, event):
+    def documentation(self, event):
         try:
             browser = os.environ.get('BROWSER')
             doc_url = 'https://vdoster.com'
@@ -55,4 +68,4 @@ class MenuBar(wx.MenuBar):
             stdout, stderr = process.communicate()
             print(stdout)
         except KeyError as e:
-            print("No browser env var set, creating popup")
+            print("No browser env var set, creating popup\n\n{}".format(e))

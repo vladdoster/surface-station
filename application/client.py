@@ -1,4 +1,3 @@
-import json
 import os
 import time
 from subprocess import PIPE, Popen
@@ -6,9 +5,11 @@ from subprocess import PIPE, Popen
 import docker
 import wx
 import wx.html
+from image_panel import ImageStreamPanel
 from joystick import JoystickPanel
 from networking.factories import MyClientFactory
 from networking.protocols import CameraStreamProtocol, JoystickExecutorProtocol
+from networking_panel import NetworkingControlPanel
 from wx.adv import SPLASH_CENTRE_ON_SCREEN, SPLASH_TIMEOUT, SplashScreen
 
 global container_id, log
@@ -24,7 +25,8 @@ class ROVPanel(wx.Panel):
 
     def __init__(self, parent):
         super(ROVPanel, self).__init__(parent)
-
+        # boo globals but....
+        global log
         panel = wx.Panel(self)
         panel_vbox = wx.BoxSizer(wx.VERTICAL)
 
@@ -32,6 +34,7 @@ class ROVPanel(wx.Panel):
         ######################################
         ## Websocket status information panel
         ######################################
+
         websocket_status_static_box = wx.StaticBox(panel, -1, 'Websockets info:')
         websocket_status_sizer = wx.StaticBoxSizer(websocket_status_static_box, wx.HORIZONTAL)
 
@@ -70,75 +73,33 @@ class ROVPanel(wx.Panel):
         ######################################
         ## Networking panel
         ######################################
-        networking_controls = wx.StaticBox(panel, -1, 'Networking:')
-        networking_io_sizer = wx.StaticBoxSizer(networking_controls, wx.VERTICAL)
-        networking_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        ws_status = wx.StaticText(panel, -1, "Socket messages")
-        networking_input_sizer = wx.BoxSizer(wx.VERTICAL)
-        self.send_test_message = wx.Button(panel, -1, 'Test message')
-        self.send_test_message.Bind(wx.EVT_BUTTON, self.on_test_message_btn_click)
-
-        self.messages = wx.TextCtrl(panel, size=(450, 75), style=wx.TE_MULTILINE)
-        networking_input_sizer.Add(ws_status, 0, wx.ALL | wx.ALIGN_TOP | wx.CENTER, 5)
-        networking_input_sizer.Add(self.send_test_message, 0, wx.ALL | wx.CENTER, 5)
-
-        # networking_sizer.Add(ws_status, 0, wx.ALL | wx.TOP, 5)
-        networking_sizer.Add(networking_input_sizer, 0, wx.ALL | wx.CENTER, 5)
-        networking_sizer.Add(self.messages, 0, wx.ALL | wx.CENTER, 5)
-        networking_io_sizer.Add(networking_sizer, 0, wx.ALL | wx.CENTER, 10)
+        self.networking_io = NetworkingControlPanel(parent=panel, label="Networking", id=-1)
 
         ######################################
         ## Image panel
         ######################################
 
-        image_viewing_static_box = wx.StaticBox(panel, -1, 'Image info:')
-        image_viewing_sizer = wx.StaticBoxSizer(image_viewing_static_box, wx.HORIZONTAL)
-
-        # Raw image stream
-        raw_image_sizer = wx.BoxSizer(wx.VERTICAL)
-        img = wx.Image(320, 240)
-        self.raw_camera_stream = wx.StaticBitmap(panel, wx.ID_ANY,
-                                                 wx.BitmapFromImage(img))
-        raw_image_title = wx.StaticText(panel, -1, "Raw image stream")
-        raw_image_sizer.Add(self.raw_camera_stream, 0, wx.ALL)
-        raw_image_sizer.Add(raw_image_title, 0, wx.ALL | wx.ALIGN_CENTER, 5)
-        # ML processed image
-        processed_image_sizer = wx.BoxSizer(wx.VERTICAL)
-        processed_img = wx.Image(320, 240)
-        self.processed_image_stream = wx.StaticBitmap(panel, wx.ID_ANY,
-                                                      wx.BitmapFromImage(processed_img))
-        processed_image_title = wx.StaticText(panel, -1, "Processed image stream")
-        processed_image_data_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        processed_image_data_title = wx.StaticText(panel, -1, "Classification %'s:")
-        processed_image_numbers_sizer = wx.BoxSizer(wx.VERTICAL)
-        processed_image_healthy_coral_percentage = wx.StaticText(panel, -1, "0%")
-        processed_image_bleached_coral_percentage = wx.StaticText(panel, -1, "0%")
-        processed_image_numbers_sizer.Add(processed_image_healthy_coral_percentage, 0, wx.ALL | wx.ALIGN_CENTER, 5)
-        processed_image_numbers_sizer.Add(processed_image_bleached_coral_percentage, 0, wx.ALL | wx.ALIGN_CENTER, 5)
-        processed_image_data_sizer.Add(processed_image_data_title, 0, wx.CENTER | wx.ALIGN_CENTER_VERTICAL, 5)
-        processed_image_data_sizer.Add(processed_image_numbers_sizer, 0, wx.ALL, 5)
-
-        processed_image_sizer.Add(self.processed_image_stream, 0, wx.ALL)
-        processed_image_sizer.Add(processed_image_title, 0, wx.ALL | wx.ALIGN_CENTER, 5)
-        processed_image_sizer.Add(processed_image_data_sizer, 0, wx.ALL | wx.ALIGN_CENTER)
-        image_viewing_sizer.Add(raw_image_sizer, 0, wx.ALL, 5)
-        image_viewing_sizer.Add(processed_image_sizer, 0, wx.ALL, 5)
+        self.image_viewer = ImageStreamPanel(parent=panel, label="Image Stream", id=-1)
 
         ######################################
         ## Joystick panel
         ######################################
+
+        # TODO: Refactor to reduce to singular call
         joystick_controls = wx.StaticBox(panel, -1, 'Joystick Controls:')
         joystick_main_sizer = wx.StaticBoxSizer(joystick_controls, wx.VERTICAL)
-        global log
         joystick_panel = JoystickPanel(panel, log)
         joystick_main_sizer.Add(joystick_panel)
 
-        # Add everything to main panel
+        ######################################
+        ## Panel construction
+        ######################################
+
         websocket_and_networking_hbox.Add(websocket_status_sizer, 0, wx.ALL | wx.CENTER, 5)
-        websocket_and_networking_hbox.Add(networking_io_sizer, 0, wx.ALL | wx.CENTER, 5)
+        websocket_and_networking_hbox.Add(self.networking_io.panel, 0, wx.ALL | wx.CENTER, 5)
         panel_vbox.Add(websocket_and_networking_hbox, 0, wx.ALL | wx.CENTER, 5)
-        panel_vbox.Add(image_viewing_sizer, 0, wx.ALL | wx.CENTER, 5)
+        panel_vbox.Add(self.image_viewer.panel, 0, wx.ALL | wx.CENTER, 5)
         panel_vbox.Add(joystick_main_sizer, 0, wx.ALL | wx.CENTER, 5)
         panel.SetSizer(panel_vbox)
         self.Centre()
@@ -146,21 +107,8 @@ class ROVPanel(wx.Panel):
         # Start docker status check
         self.check_docker_status()
 
-    def on_test_message_btn_click(self, event):
-        if self.GetParent()._app._joystick_factory:
-            proto = self.GetParent()._app._joystick_factory._proto
-            if proto:
-                # Send message to server
-                evt = {'x': 1, 'y': 1, 'z': .5, 'r': -.1, 'p': .2, 'c': -1,
-                       'button': 17, 'checksum': 987}
-                msg = json.dumps(evt).encode('utf8')
-                proto.sendMessage(msg)
-                # Update UI
-                self.messages.AppendText("Sending to server: {}\n".format(msg))
-            else:
-                self.messages.AppendText("Check websocket connection")
-
     def check_docker_status(self):
+        # Boo globals but....
         global container_id
         if container_id:
             try:
@@ -171,7 +119,7 @@ class ROVPanel(wx.Panel):
                 else:
                     self.ml_docker_container_status_pnl.SetBackgroundColour("#FF0000")
             except Exception as e:
-                print("Error getting ml container status")
+                print("Error getting ml container status\n{}".format(e))
                 self.ml_docker_container_status_pnl.SetBackgroundColour("#FF0000")
         wx.CallLater(10000, self.check_docker_status)
 

@@ -1,36 +1,47 @@
-import json
-
 import wx
+
+
 # Networking panel
 
 
-class VideoStreamPanel(wx.StaticBox):
+class ImageStreamPanel(wx.StaticBox):
+
     def __init__(self, *args, **kwargs):
-        super(VideoStreamPanel, self).__init__(*args, **kwargs)
-        self.init_ui()
+        super(ImageStreamPanel, self).__init__(*args, **kwargs)
+        self.Init_UI()
 
-    def init_ui(self):
-        network_controls_sizer = wx.StaticBoxSizer(self, wx.VERTICAL)
-        messages_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        socket_messages = wx.StaticText()
-        # socket_messages.SetLabel("Socket Messages")
-        messages_sizer.Add(socket_messages, 0, wx.ALL | wx.TOP, 5)
-        self.messages = wx.TextCtrl(size=(300, 150), style=wx.TE_MULTILINE)
-        messages_sizer.Add(self.messages, 0, wx.ALL | wx.CENTER, 5)
+    def Init_UI(self):
+        self.panel = wx.StaticBoxSizer(self, wx.HORIZONTAL)
+        self.choices_sizer = wx.BoxSizer(wx.VERTICAL)
+        self.raw_stream_choice = wx.RadioButton(self.GetParent(), label='Raw', pos=(10, 10),
+                                                style=wx.RB_GROUP)
+        self.classification_choice = wx.RadioButton(self.GetParent(), label='Image classification', pos=(10, 30))
+        self.obj_detection_choice = wx.RadioButton(self.GetParent(), label='Object detection', pos=(10, 50))
 
-        self.send_test_message = wx.Button()
-        self.send_test_message.Bind(wx.EVT_BUTTON, self.on_click)
+        self.raw_stream_choice.Bind(wx.EVT_RADIOBUTTON, self.SetVal)
+        self.classification_choice.Bind(wx.EVT_RADIOBUTTON, self.SetVal)
+        self.obj_detection_choice.Bind(wx.EVT_RADIOBUTTON, self.SetVal)
 
-        messages_sizer.Add(self.send_test_message, 0, wx.ALL | wx.CENTER, 5)
-        network_controls_sizer.Add(messages_sizer, 0, wx.ALL | wx.CENTER, 10)
+        self.raw_image_sizer = wx.BoxSizer(wx.VERTICAL)
+        self.blank_img = wx.Image(320, 240)
+        self.raw_camera_stream = wx.StaticBitmap(self.GetParent(), wx.ID_ANY,
+                                                 wx.Bitmap(self.blank_img))
 
-    def on_click(self, event):
-        if self.GetParent()._app._factory:
-            proto = self.GetParent()._app._factory._proto
-            if proto:
-                # Send message to server
-                evt = {'roll': 1.0, 'pitch': 1.0, 'yaw': 1.0, 'x': 1, 'y': 1, 'z': 1}
-                msg = json.dumps(evt).encode('utf8')
-                proto.sendMessage(msg)
-                # Update UI
-                self.messages.AppendText("Sending to server: {}\n".format(msg))
+        self.choices_sizer.Add(self.raw_stream_choice, 0, wx.ALL, 5)
+        self.choices_sizer.Add(self.classification_choice, 0, wx.ALL, 5)
+        self.choices_sizer.Add(self.obj_detection_choice, 0, wx.ALL, 5)
+
+        self.panel.Add(self.choices_sizer, 0, wx.ALL, 5)
+        self.current_image_stream_title = wx.StaticText(self.GetParent(), -1, "Raw image stream")
+        self.raw_image_sizer.Add(self.raw_camera_stream, 0, wx.ALL)
+        self.raw_image_sizer.Add(self.current_image_stream_title, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+        self.raw_image_sizer.Hide(self.current_image_stream_title)
+        self.panel.Add(self.raw_image_sizer, 0, wx.ALL, 5)
+
+    def SetVal(self, e):
+        if str(self.raw_stream_choice.GetValue()):
+            self.current_image_stream_title.SetLabel("Raw stream")
+        if str(self.classification_choice.GetValue()):
+            self.current_image_stream_title.SetLabel("Image classification")
+        if str(self.obj_detection_choice.GetValue()):
+            self.current_image_stream_title.SetLabel("Object detection")
