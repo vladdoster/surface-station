@@ -1,12 +1,12 @@
 import time
 
-import docker
 import wx
 import wx.html
 from networking.factories import ClientFactory
 from networking.protocols import CameraStreamProtocol, JoystickExecutorProtocol
 from panels.menu_bar import MenuBar
 from panels.rov_panel import ROVPanel
+from utils import start_ml_docker_container
 from wx.adv import SPLASH_CENTRE_ON_SCREEN, SPLASH_TIMEOUT, SplashScreen
 
 global container_id, log
@@ -40,21 +40,6 @@ class MainFrame(wx.Frame):
         self.SetSizer(self.sizer)
 
 
-def start_ml_docker_container():
-    client = docker.from_env()
-    # kill all running containers
-    running_containers = client.containers.list()
-    for container in running_containers:
-        container.kill()
-    try:
-        global container_id
-        container_id = client.containers.run(image="gcr.io/automl-vision-ondevice/gcloud-container-1.12.0:latest",
-                                             detach=True).id
-    except docker.errors.APIError as e:
-        print("Error starting ml container\n\n{}".format(e))
-        sys.exit(1)
-
-
 if __name__ == "__main__":
     import sys
     from twisted.internet import wxreactor
@@ -68,7 +53,8 @@ if __name__ == "__main__":
     wxreactor.install()
     from twisted.internet import reactor
 
-    start_ml_docker_container()
+    global container_id
+    container_id = start_ml_docker_container()
     print("""
 
                 ######## ##    ## ########     ###    ########  ########  
