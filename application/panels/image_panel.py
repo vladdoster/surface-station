@@ -1,9 +1,6 @@
 import wx
 
 
-# Networking panel
-
-
 class ImageStreamPanel(wx.StaticBox):
 
     def __init__(self, *args, **kwargs):

@@ -4,8 +4,6 @@ import wx
 
 
 # Networking panel
-
-
 class NetworkingControlPanel(wx.StaticBox):
 
     def __init__(self, *args, **kwargs):
