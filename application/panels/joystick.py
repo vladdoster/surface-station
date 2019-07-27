@@ -859,7 +859,7 @@ class AxisPanel(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
-class JoystickDemoPanel(wx.Panel):
+class JoystickPanel(wx.Panel):
 
     def __init__(self, parent, log):
 
@@ -911,7 +911,7 @@ class JoystickDemoPanel(wx.Panel):
         # Do not try this without a stick
         if not self.stick:
             return
-
+        print("Calibrating joystick")
         self.info.Calibrate()
         self.axes.Calibrate()
         self.pov.Calibrate()
@@ -920,12 +920,14 @@ class JoystickDemoPanel(wx.Panel):
     def OnJoystick(self, evt=None):
         if not self.stick:
             return
-
+        print("Joystick movement detected")
         self.axes.Update()
         self.joy.Update()
         self.pov.Update()
         if evt is not None and evt.IsButton():
             self.buttons.Update()
+
+        # This is where custom messages would be sent from
 
     def ShutdownDemo(self):
         if self.stick:
@@ -935,15 +937,15 @@ class JoystickDemoPanel(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
-def runTest(frame, nb, log):
-    if haveJoystick:
-        win = JoystickDemoPanel(nb, log)
-        return win
-    else:
-        from Main import MessagePanel
-        win = MessagePanel(nb, 'wx.Joystick is not available on this platform.',
-                           'Sorry', wx.ICON_WARNING)
-        return win
+# def runTest(frame, nb, log):
+#     if haveJoystick:
+#         win = JoystickDemoPanel(nb, log)
+#         return win
+#     else:
+#         from Main import MessagePanel
+#         win = MessagePanel(nb, 'wx.Joystick is not available on this platform.',
+#                            'Sorry', wx.ICON_WARNING)
+#         return win
 
 
 # ----------------------------------------------------------------------------

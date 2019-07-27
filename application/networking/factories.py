@@ -2,11 +2,10 @@ from autobahn.twisted import WebSocketClientFactory
 from twisted.internet.protocol import ReconnectingClientFactory
 
 
-class MyClientFactory(ReconnectingClientFactory, WebSocketClientFactory):
+class ClientFactory(ReconnectingClientFactory, WebSocketClientFactory):
     """
     Our factory for WebSocket client connections.
     """
-    # protocol = MyClientProtocol
 
     maxDelay = 10
     maxRetries = 5
@@ -19,7 +18,6 @@ class MyClientFactory(ReconnectingClientFactory, WebSocketClientFactory):
 
     def startedConnecting(self, connector):
         print('Started to connect.')
-
 
     def clientConnectionLost(self, connector, reason):
         print('Lost connection. Reason: {}'.format(reason))
