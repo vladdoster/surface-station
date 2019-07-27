@@ -3,10 +3,7 @@ import wx
 import wx.html
 from panels.image_panel import ImageStreamPanel
 from panels.joystick import JoystickPanel
-from networking.factories import ClientFactory
-from networking.protocols import CameraStreamProtocol, JoystickExecutorProtocol
 from panels.networking_panel import NetworkingControlPanel
-from wx.adv import SPLASH_CENTRE_ON_SCREEN, SPLASH_TIMEOUT, SplashScreen
 
 global container_id
 
@@ -20,8 +17,8 @@ class ROVPanel(wx.Panel):
         panel = wx.Panel(self)
         panel_vbox = wx.BoxSizer(wx.VERTICAL)
 
-
         websocket_and_networking_hbox = wx.BoxSizer(wx.HORIZONTAL)
+
         ######################################
         ## Websocket status information panel
         ######################################
