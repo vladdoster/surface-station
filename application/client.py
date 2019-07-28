@@ -6,7 +6,6 @@ from networking.factories import ClientFactory
 from networking.protocols import CameraStreamProtocol, JoystickExecutorProtocol
 from panels.menu_bar import MenuBar
 from panels.rov_panel import ROVPanel
-from utils import start_ml_docker_container
 from wx.adv import SPLASH_CENTRE_ON_SCREEN, SPLASH_TIMEOUT, SplashScreen
 
 global container_id, log
@@ -32,7 +31,7 @@ class MainFrame(wx.Frame):
         self.SetMenuBar(menu_bar)
 
         # ROV panel
-        self.rov_panel = ROVPanel(self, container_id=container_id, log=log)
+        self.rov_panel = ROVPanel(self, log=log)
 
         # Frame sizer
         self.sizer = wx.BoxSizer(wx.VERTICAL)
@@ -52,25 +51,22 @@ if __name__ == "__main__":
 
     wxreactor.install()
     from twisted.internet import reactor
-
-    global container_id
-    container_id = start_ml_docker_container()
     print("""
 
-                ######## ##    ## ########     ###    ########  ########  
-                ##       ###   ## ##     ##   ## ##   ##     ## ##     ## 
-                ##       ####  ## ##     ##  ##   ##  ##     ## ##     ## 
-                ######   ## ## ## ########  ##     ## ########  ########  
-                ##       ##  #### ##     ## ######### ##   ##   ##   ##   
-                ##       ##   ### ##     ## ##     ## ##    ##  ##    ##  
+                ######## ##    ## ########     ###    ########  ########
+                ##       ###   ## ##     ##   ## ##   ##     ## ##     ##
+                ##       ####  ## ##     ##  ##   ##  ##     ## ##     ##
+                ######   ## ## ## ########  ##     ## ########  ########
+                ##       ##  #### ##     ## ######### ##   ##   ##   ##
+                ##       ##   ### ##     ## ##     ## ##    ##  ##    ##
                 ######## ##    ## ########  ##     ## ##     ## ##     ##
 
-                                 ######   ##     ## ####                                  
-                                ##    ##  ##     ##  ##                                   
-                                ##        ##     ##  ##                                   
-                                ##   #### ##     ##  ##                                   
-                                ##    ##  ##     ##  ##                                   
-                                ##    ##  ##     ##  ##                                   
+                                 ######   ##     ## ####
+                                ##    ##  ##     ##  ##
+                                ##        ##     ##  ##
+                                ##   #### ##     ##  ##
+                                ##    ##  ##     ##  ##
+                                ##    ##  ##     ##  ##
                                  ######    #######  ####
 
                 """)

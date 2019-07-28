@@ -45,18 +45,8 @@ class ROVPanel(wx.Panel):
         ws_joystick_sizer.Add(joystick_connection_title, 0, wx.ALL | wx.TOP, 5)
         ws_joystick_sizer.Add(self.joystick_status_pnl, 0, wx.ALL | wx.ALIGN_CENTER, 5)
 
-        # ML image classification docker container running indicator
-        ml_docker_container_sizer = wx.BoxSizer(wx.VERTICAL)
-        ml_docker_container_title = wx.StaticText(panel, -1, "ML")
-        self.ml_docker_container_status_pnl_col = wx.Colour(0, 0, 0)
-        self.ml_docker_container_status_pnl = wx.Panel(panel, size=(20, 20))
-        self.ml_docker_container_status_pnl.SetBackgroundColour(self.ml_docker_container_status_pnl_col)
-        ml_docker_container_sizer.Add(ml_docker_container_title, 0, wx.ALL | wx.TOP, 5)
-        ml_docker_container_sizer.Add(self.ml_docker_container_status_pnl, 0, wx.ALL | wx.ALIGN_CENTER, 5)
-
         websocket_status_sizer.Add(ws_joystick_sizer, 0, wx.ALL | wx.TOP, 5)
         websocket_status_sizer.Add(ws_camera_sizer, 0, wx.ALL | wx.TOP, 5)
-        websocket_status_sizer.Add(ml_docker_container_sizer, 0, wx.ALL | wx.TOP, 5)
 
         ######################################
         ## Networking panel
@@ -92,23 +82,4 @@ class ROVPanel(wx.Panel):
         panel.SetSizer(panel_vbox)
         self.Centre()
         panel.Fit()
-        # Start docker status check
-        self.check_docker_status()
 
-    def check_docker_status(self):
-        # Boo globals but....
-        if self.container_id:
-            try:
-                client = docker.client.from_env()
-                status = client.containers.get(self.container_id).status
-                if status == "running":
-                    self.ml_docker_container_status_pnl.SetBackgroundColour("#228B22")
-                else:
-                    self.ml_docker_container_status_pnl.SetBackgroundColour("#FF0000")
-            except Exception as e:
-                print("Error getting ml container status\n{}".format(e))
-                self.ml_docker_container_status_pnl.SetBackgroundColour("#FF0000")
-        else:
-            print("Error getting ml container status\n{}".format(e))
-            self.ml_docker_container_status_pnl.SetBackgroundColour("#FF0000")
-        wx.CallLater(10000, self.check_docker_status)
