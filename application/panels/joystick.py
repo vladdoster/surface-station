@@ -1,3 +1,4 @@
+import json
 import math
 
 import wx
@@ -920,12 +921,33 @@ class JoystickPanel(wx.Panel):
     def OnJoystick(self, evt=None):
         if not self.stick:
             return
-        print("Joystick movement detected")
+        for a in self.axes.axes:
+            try:
+                if a.bar.rawvalue:
+                    print(a.bar.rawvalue)
+                else:
+                    print("Looks like we dont have a value")
+            except Exception as e:
+                pass
+        print("Joystick movement detected {}".format(self.axes.axes))
         self.axes.Update()
         self.joy.Update()
         self.pov.Update()
         if evt is not None and evt.IsButton():
             self.buttons.Update()
+
+        if self.GetParent().GetParent().GetParent()._app._joystick_factory:
+            proto = self.GetParent().GetParent().GetParent()._app._joystick_factory._proto
+            if proto:
+                # Send message to server
+                evt = {'x': 1, 'y': 1, 'z': .5, 'r': -.1, 'p': .2, 'c': -1,
+                       'button': 17, 'checksum': 987}
+                msg = json.dumps(evt).encode('utf8')
+                proto.sendMessage(msg)
+                # Update UI
+                self.GetParent().GetParent().networking_io.messages.AppendText("Sending to server: {}\n".format(msg))
+            else:
+                self.GetParent().GetParent().networking_io.messages.AppendText("Check websocket connection\n")
 
         # This is where custom messages would be sent from
 
@@ -933,22 +955,6 @@ class JoystickPanel(wx.Panel):
         if self.stick:
             self.stick.ReleaseCapture()
         self.stick = None
-
-
-# ----------------------------------------------------------------------------
-
-# def runTest(frame, nb, log):
-#     if haveJoystick:
-#         win = JoystickDemoPanel(nb, log)
-#         return win
-#     else:
-#         from Main import MessagePanel
-#         win = MessagePanel(nb, 'wx.Joystick is not available on this platform.',
-#                            'Sorry', wx.ICON_WARNING)
-#         return win
-
-
-# ----------------------------------------------------------------------------
 
 overview = """\
 <html>
