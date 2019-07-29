@@ -80,12 +80,23 @@ if __name__ == "__main__":
     app._frame.Show()
     reactor.registerWxApp(app)
 
-    # Create factory (singleton connection pattern)
-    app._camera_factory = ClientFactory(u"ws://127.0.0.1:9000", app, protocol=CameraStreamProtocol)
-    app._joystick_factory = ClientFactory(u"ws://127.0.0.1:9001", app, protocol=JoystickExecutorProtocol)
-    # Connect to host
-    reactor.connectTCP("127.0.0.1", 9000, app._camera_factory)
-    reactor.connectTCP("127.0.0.1", 9001, app._joystick_factory)
+    simmode = False
+    if simmode:
+        print("Note: Simulation mode is true, we're running locally!")
+        # Create factory (singleton connection pattern)
+        app._camera_factory = ClientFactory(u"ws://127.0.0.1:9000", app, protocol=CameraStreamProtocol)
+        app._joystick_factory = ClientFactory(u"ws://127.0.0.1:9001", app, protocol=JoystickExecutorProtocol)
+        # Connect to host
+        reactor.connectTCP("127.0.0.1", 9000, app._camera_factory)
+        reactor.connectTCP("127.0.0.1", 9001, app._joystick_factory)
+    else:
+        print("Note: Simulation mode is false, we're looking for the actual robot!")
+        # Create factory (singleton connection pattern)
+        app._camera_factory = ClientFactory(u"ws://enbarr.local:9000", app, protocol=CameraStreamProtocol)
+        app._joystick_factory = ClientFactory(u"ws://enbarr.local:9001", app, protocol=JoystickExecutorProtocol)
+        # Connect to host
+        reactor.connectTCP("enbarr.local", 9000, app._camera_factory)
+        reactor.connectTCP("enbarr.local", 9001, app._joystick_factory)
 
     # Start twisted event loop
     reactor.run()
