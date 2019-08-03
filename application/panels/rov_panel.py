@@ -23,7 +23,7 @@ class ROVPanel(wx.Panel):
         ## Websocket status information panel
         ######################################
 
-        websocket_status_static_box = wx.StaticBox(panel, -1, 'Websockets info:')
+        websocket_status_static_box = wx.StaticBox(panel, -1, 'Websocket Status')
         websocket_status_sizer = wx.StaticBoxSizer(websocket_status_static_box, wx.HORIZONTAL)
 
         # auv camera websocket connection indicator
@@ -68,7 +68,7 @@ class ROVPanel(wx.Panel):
         ## Image panel
         ######################################
 
-        self.image_viewer = ImageStreamPanel(parent=panel, label="Image Stream", id=-1)
+        self.image_viewer = ImageStreamPanel(parent=panel, label="Vision Processing", id=-1)
 
         ######################################
         ## Joystick panel

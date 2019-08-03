@@ -1,3 +1,4 @@
+import glob
 import os
 
 import wx
@@ -7,9 +8,11 @@ class ImageStreamPanel(wx.StaticBox):
 
     def __init__(self, *args, **kwargs):
         super(ImageStreamPanel, self).__init__(*args, **kwargs)
-        self.Init_UI()
+        self.dataset_record = False
+        self.init_ui()
 
-    def Init_UI(self):
+    def init_ui(self):
+
         # Image Stream info box
         ######################################
         self.panel = wx.StaticBoxSizer(self, wx.HORIZONTAL)
@@ -18,20 +21,17 @@ class ImageStreamPanel(wx.StaticBox):
         ######################################
         self.data_set_creator_input_panel = wx.StaticBox(self.GetParent(), label="Dataset Creator")
         self.data_set_creator_input_sizer = wx.StaticBoxSizer(self.data_set_creator_input_panel, wx.VERTICAL)
-        self.start_data_set_creator = wx.Button(self.GetParent().GetParent(), label='Start recording', pos=(10, 50))
-        self.start_data_set_creator.Bind(wx.EVT_BUTTON, self.button_browse_path_click)
-        self.save_data_set_to_dir = wx.StaticText(self.GetParent(), -1)
+        self.start_data_set_creator_btn = wx.Button(self.GetParent().GetParent(), label='Start recording', pos=(10, 50))
+        self.start_data_set_creator_btn.Bind(wx.EVT_BUTTON, self.start_dataset_creation)
 
-        self.images_capture_rate_label = wx.StaticText(self.GetParent(), -1, "Images captured per second")
-        self.images_capture_rate = wx.SpinCtrl(self.GetParent(), min=1)
-        self.save_data_set_to_dir.Wrap(width=10)
-        self.data_set_creator_input_sizer.Add(self.start_data_set_creator, 0, wx.ALL | wx.CENTER, 5)
-        self.data_set_creator_input_sizer.Add(self.save_data_set_to_dir, 0, wx.ALL, 5)
+        self.images_capture_rate_label = wx.StaticText(self.GetParent(), -1, "Image saved every N second(s)")
+        self.images_capture_rate_spin_ctrl = wx.SpinCtrl(self.GetParent(), min=1)
+        self.images_capture_rate_spin_ctrl.Bind(wx.EVT_SPINCTRL, self.update_dataset_images_capture_rate)
+        self.data_set_creator_input_sizer.Add(self.start_data_set_creator_btn, 0, wx.ALL | wx.CENTER, 5)
         self.data_set_creator_input_sizer.Add(self.images_capture_rate_label, 0, wx.ALL | wx.CENTER, 5)
-        self.data_set_creator_input_sizer.Add(self.images_capture_rate, 0, wx.ALL | wx.CENTER, 5)
+        self.data_set_creator_input_sizer.Add(self.images_capture_rate_spin_ctrl, 0, wx.ALL | wx.CENTER, 5)
 
         ######################################
-
         # Image stream from AUV
         ######################################
         self.raw_image_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -47,9 +47,30 @@ class ImageStreamPanel(wx.StaticBox):
         self.panel.Add(self.data_set_creator_input_sizer, 0, wx.ALL, 5)
         self.panel.Add(self.raw_image_sizer, 0, wx.ALL, 5)
 
-    def button_browse_path_click(self, event):
-        print("Starting to record image dataset")
-        print(os.listdir("captured_datasets"))
+    def start_dataset_creation(self, event):
+        if self.dataset_record:
+            print("Recording stopped for dataset")
+            # Let rest of app know
+            self.dataset_record = False
+            self.start_data_set_creator_btn.SetLabel("Start Recording")
+        else:
+            print("Starting to record image dataset")
+            # Let rest of app know
+            self.dataset_record = True
+            # Figure out what to name dataset
+            dataset_dir = sorted([f for f in glob.glob("captured_datasets/*")])
+            # dataset name null check
+            if len(dataset_dir) == 0:
+                self.record_dataset_to_dir = "captured_datasets/1"
+                os.mkdir(path="captured_datasets/1")
+            else:
+                self.record_dataset_to_dir = "captured_datasets/{}".format(1 + len(dataset_dir))
+                os.mkdir(path=self.record_dataset_to_dir)
+            self.dataset_record_rate = int(self.images_capture_rate_spin_ctrl.Value * 30)
+            self.start_data_set_creator_btn.SetLabel("Stop Recording")
 
-        self.save_data_set_to_dir.Wrap(width=10)
-        self.save_data_set_to_dir.Update()
+    def update_dataset_images_capture_rate(self, event):
+        self.dataset_record_rate = int(self.images_capture_rate_spin_ctrl.Value * 30)
+
+    def process_last_recorded_data_set(self):
+        pass
