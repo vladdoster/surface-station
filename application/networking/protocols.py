@@ -75,7 +75,8 @@ class CameraStreamProtocol(WebSocketClientProtocol):
             print("Binary message received: {0} bytes".format(len(payload)))
         else:
             frame = self.factory._app._frame
-            if frame.rov_panel.image_viewer.dataset_record:
+            f = io.BytesIO(base64.b64decode(payload))
+            if frame.rov_panel.image_viewer.currently_recording_dataset:
                 self.received_images_count += 1
                 if self.received_images_count % frame.rov_panel.image_viewer.dataset_record_rate == 0:
                     print("Saving image #{}".format(self.received_images_count))
@@ -88,12 +89,13 @@ class CameraStreamProtocol(WebSocketClientProtocol):
                 #     frame.rov_panel.image_viewer.record_dataset_to_dir, self.received_images_count))
             else:
                 self.received_images_count = 0
-            f = io.BytesIO(base64.b64decode(payload))
             # image_np = cv2.imdecode(payload, cv2.IMREAD_COLOR)
             # f = self.process_image_cloud_ml(payload, 1070726212812, "IOD8268142722922053632")
             frame = self.factory._app._frame
             # frame.rov_panel.messages.AppendText("{}\n".format(self._received))
             # frame.rov_panel.networking_io.messages.AppendText("Image written to disk\n")
+
+            # Srt image panel with camera stream
             try:
                 img = wx.Image(f, wx.BITMAP_TYPE_ANY)
                 frame.rov_panel.image_viewer.raw_camera_stream.SetBitmap(wx.Bitmap(img))
