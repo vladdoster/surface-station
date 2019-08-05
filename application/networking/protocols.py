@@ -100,6 +100,8 @@ class CameraStreamProtocol(WebSocketClientProtocol):
                 img = wx.Image(f, wx.BITMAP_TYPE_ANY)
                 frame.rov_panel.image_viewer.raw_camera_stream.SetBitmap(wx.Bitmap(img))
                 frame.rov_panel.Refresh()
+
+
             except Exception as e:
                 pass
 
