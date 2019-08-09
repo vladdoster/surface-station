@@ -7,7 +7,7 @@ from cv2 import rectangle
 from google.cloud import automl_v1beta1
 from google.protobuf.json_format import MessageToDict
 
-from application import config
+import config
 
 
 def get_prediction(self, content, project_id, model_id):

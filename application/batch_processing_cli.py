@@ -22,9 +22,9 @@ def cli(ctx, directory_to_process):
 @cli.command()
 @click.pass_context
 def google_cloud_ml(ctx):
-    """Batch process images via Google Cloud ML from a captured dataset"""
+    """Batch process assets via Google Cloud ML from a captured dataset"""
     click.echo(
-        "Batch processing *.jpg images in {}".format(ctx.obj["DIRECTORY_TO_PROCESS"])
+        "Batch processing *.jpg assets in {}".format(ctx.obj["DIRECTORY_TO_PROCESS"])
     )
     # For each file, send off to the google cloud and then save to a directory inside 1
 
