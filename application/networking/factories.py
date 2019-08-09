@@ -17,12 +17,12 @@ class ClientFactory(ReconnectingClientFactory, WebSocketClientFactory):
         self._proto = None
 
     def startedConnecting(self, connector):
-        print('Started to connect.')
+        print("Started to connect.")
 
     def clientConnectionLost(self, connector, reason):
-        print('Lost connection. Reason: {}'.format(reason))
+        print("Lost connection. Reason: {}".format(reason))
         ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
 
     def clientConnectionFailed(self, connector, reason):
-        print('Connection failed. Reason: {}'.format(reason))
+        print("Connection failed. Reason: {}".format(reason))
         ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)

@@ -15,16 +15,13 @@ global container_id, log
 
 
 class MainFrame(wx.Frame):
-
     def __init__(self, app):
         self.frame_number = 1
-        frame = wx.Frame.__init__(self, None, wx.ID_ANY,
-                                  "Enbarr")
+        frame = wx.Frame.__init__(self, None, wx.ID_ANY, "Enbarr")
         self._app = app
         # Loading screen
         bmp = wx.Image("images/enbarr.png").ConvertToBitmap()
-        SplashScreen(bmp, SPLASH_CENTRE_ON_SCREEN | SPLASH_TIMEOUT,
-                     1000, None, -1)
+        SplashScreen(bmp, SPLASH_CENTRE_ON_SCREEN | SPLASH_TIMEOUT, 1000, None, -1)
 
         wx.SafeYield()
         global log
@@ -54,7 +51,9 @@ if __name__ == "__main__":
 
     wxreactor.install()
     from twisted.internet import reactor
-    print("""
+
+    print(
+        """
 
                 ######## ##    ## ########     ###    ########  ########
                 ##       ###   ## ##     ##   ## ##   ##     ## ##     ##
@@ -72,7 +71,8 @@ if __name__ == "__main__":
                                 ##    ##  ##     ##  ##
                                  ######    #######  ####
 
-                """)
+                """
+    )
     # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/vlad/Downloads/Enbarr-9a739a9422cc.json"
     app = wx.App(False)
     app._camera_factory = None
@@ -88,16 +88,24 @@ if __name__ == "__main__":
     if simmode:
         print("Note: Simulation mode is true, we're running locally!")
         # Create factory (singleton connection pattern)
-        app._camera_factory = ClientFactory(u"ws://127.0.0.1:9000", app, protocol=CameraStreamProtocol)
-        app._joystick_factory = ClientFactory(u"ws://127.0.0.1:9001", app, protocol=JoystickExecutorProtocol)
+        app._camera_factory = ClientFactory(
+            "ws://127.0.0.1:9000", app, protocol=CameraStreamProtocol
+        )
+        app._joystick_factory = ClientFactory(
+            "ws://127.0.0.1:9001", app, protocol=JoystickExecutorProtocol
+        )
         # Connect to host
         reactor.connectTCP("127.0.0.1", 9000, app._camera_factory)
         reactor.connectTCP("127.0.0.1", 9001, app._joystick_factory)
     else:
         print("Note: Simulation mode is false, we're looking for the actual robot!")
         # Create factory (singleton connection pattern)
-        app._camera_factory = ClientFactory(u"ws://enbarr.local:9000", app, protocol=CameraStreamProtocol)
-        app._joystick_factory = ClientFactory(u"ws://enbarr.local:9001", app, protocol=JoystickExecutorProtocol)
+        app._camera_factory = ClientFactory(
+            "ws://enbarr.local:9000", app, protocol=CameraStreamProtocol
+        )
+        app._joystick_factory = ClientFactory(
+            "ws://enbarr.local:9001", app, protocol=JoystickExecutorProtocol
+        )
         # Connect to host
         reactor.connectTCP("enbarr.local", 9000, app._camera_factory)
         reactor.connectTCP("enbarr.local", 9001, app._joystick_factory)

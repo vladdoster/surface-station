@@ -7,7 +7,6 @@ from autobahn.twisted import WebSocketClientProtocol
 
 
 class CameraStreamProtocol(WebSocketClientProtocol):
-
     def onOpen(self):
         print("WebSocket connection open.")
         self.factory._proto = self
@@ -25,12 +24,20 @@ class CameraStreamProtocol(WebSocketClientProtocol):
             f = io.BytesIO(base64.b64decode(payload))
             if frame.rov_panel.image_viewer.currently_recording_dataset:
                 self.received_images_count += 1
-                if self.received_images_count % frame.rov_panel.image_viewer.dataset_record_rate == 0:
+                if (
+                    self.received_images_count
+                    % frame.rov_panel.image_viewer.dataset_record_rate
+                    == 0
+                ):
                     print("Saving image #{}".format(self.received_images_count))
                     # decode the image and save locally
-                    with open("{}/{}.jpg".format(frame.rov_panel.image_viewer.record_dataset_to_dir,
-                                                 datetime.now().strftime('%Y_%m_%d_%H_%M_%S')),
-                              "wb") as image_file:
+                    with open(
+                        "{}/{}.jpg".format(
+                            frame.rov_panel.image_viewer.record_dataset_to_dir,
+                            datetime.now().strftime("%Y_%m_%d_%H_%M_%S"),
+                        ),
+                        "wb",
+                    ) as image_file:
                         image_file.write(base64.b64decode(payload))
             else:
                 self.received_images_count = 0
@@ -51,7 +58,6 @@ class CameraStreamProtocol(WebSocketClientProtocol):
 
 
 class JoystickExecutorProtocol(WebSocketClientProtocol):
-
     def onOpen(self):
         print("WebSocket connection open.")
         self.factory._proto = self
