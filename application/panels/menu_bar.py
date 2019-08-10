@@ -5,7 +5,6 @@ import wx
 
 
 class MenuBar(wx.MenuBar):
-
     def __init__(self, *args, **kw):
         super(MenuBar, self).__init__(*args, **kw)
 
@@ -15,11 +14,14 @@ class MenuBar(wx.MenuBar):
             self.Append(self.create_menu(menu_data=menu_items), menu_label)
 
     def menu_data(self):
-        return (("&File",
-                 ("&Quit", "Quit", self.close_window)),
-                ("&Options",
-                 ("&Upload Model", "Upload a ML model", self.upload_model),
-                 ("&Documentation", "Show documentation", self.documentation)))
+        return (
+            ("&File", ("&Quit", "Quit", self.close_window)),
+            (
+                "&Options",
+                ("&Upload Model", "Upload a ML model", self.upload_model),
+                ("&Documentation", "Show documentation", self.documentation),
+            ),
+        )
 
     def create_menu(self, menu_data):
         menu = wx.Menu()
@@ -38,8 +40,8 @@ class MenuBar(wx.MenuBar):
 
     def documentation(self, event):
         try:
-            browser = os.environ.get('BROWSER')
-            doc_url = 'https://vdoster.com'
+            browser = os.environ.get("BROWSER")
+            doc_url = "https://vdoster.com"
             process = Popen([browser, doc_url], stdout=PIPE, stderr=PIPE)
             stdout, stderr = process.communicate()
             print(stdout)

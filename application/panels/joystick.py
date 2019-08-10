@@ -14,8 +14,8 @@ if wx.Platform == "__WXMAC__":
 # platforms, this can go up to 32.
 MAX_BUTTONS = 16
 
-
 # ----------------------------------------------------------------------------
+
 
 class Label(wx.StaticText):
     # A derived StaticText that always aligns right and renders
@@ -28,8 +28,9 @@ class Label(wx.StaticText):
                 parent.GetFont().GetPointSize(),
                 parent.GetFont().GetFamily(),
                 parent.GetFont().GetStyle(),
-                wx.BOLD
-            ))
+                wx.BOLD,
+            )
+        )
 
 
 # ----------------------------------------------------------------------------
@@ -140,6 +141,7 @@ class JoyGauge(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
+
 class JoyPanel(wx.Panel):
     def __init__(self, parent, stick):
         self.stick = stick
@@ -152,15 +154,22 @@ class JoyPanel(wx.Panel):
             parent.GetFont().GetPointSize() + 3,
             parent.GetFont().GetFamily(),
             parent.GetFont().GetStyle(),
-            wx.BOLD
+            wx.BOLD,
         )
 
         t = wx.StaticText(self, -1, "X - Y Axes", style=wx.ALIGN_CENTRE)
         t.SetFont(fn)
-        sizer.Add(t, 0, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER | wx.ALIGN_CENTER_HORIZONTAL, 1)
+        sizer.Add(
+            t, 0, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER | wx.ALIGN_CENTER_HORIZONTAL, 1
+        )
 
         self.control = JoyGauge(self, self.stick)
-        sizer.Add(self.control, 1, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER | wx.ALIGN_CENTER_HORIZONTAL, 1)
+        sizer.Add(
+            self.control,
+            1,
+            wx.ALL | wx.EXPAND | wx.ALIGN_CENTER | wx.ALIGN_CENTER_HORIZONTAL,
+            1,
+        )
 
         self.SetSizer(sizer)
         sizer.Fit(self)
@@ -170,6 +179,7 @@ class JoyPanel(wx.Panel):
 
 
 # ----------------------------------------------------------------------------
+
 
 class POVGauge(wx.Panel):
     #
@@ -291,6 +301,7 @@ class POVGauge(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
+
 class POVStatus(wx.Panel):
     #
     # Displays static info about the POV control
@@ -327,6 +338,7 @@ class POVStatus(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
+
 class POVPanel(wx.Panel):
     def __init__(self, parent, stick):
         self.stick = stick
@@ -342,7 +354,7 @@ class POVPanel(wx.Panel):
             parent.GetFont().GetPointSize() + 3,
             parent.GetFont().GetFamily(),
             parent.GetFont().GetStyle(),
-            wx.BOLD
+            wx.BOLD,
         )
         t = wx.StaticText(self, -1, "POV Control", style=wx.ALIGN_CENTER)
         t.SetFont(fn)
@@ -368,6 +380,7 @@ class POVPanel(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
+
 class LED(wx.Panel):
     def __init__(self, parent, number):
 
@@ -379,7 +392,7 @@ class LED(wx.Panel):
             parent.GetFont().GetPointSize() - 1,
             parent.GetFont().GetFamily(),
             parent.GetFont().GetStyle(),
-            wx.BOLD
+            wx.BOLD,
         )
 
         wx.Panel.__init__(self, parent, -1, size=self.size)
@@ -463,6 +476,7 @@ class LED(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
+
 class JoyButtons(wx.Panel):
     def __init__(self, parent, stick):
 
@@ -477,7 +491,7 @@ class JoyButtons(wx.Panel):
             parent.GetFont().GetPointSize() + 3,
             parent.GetFont().GetFamily(),
             parent.GetFont().GetStyle(),
-            wx.BOLD
+            wx.BOLD,
         )
 
         t = wx.StaticText(self, -1, "Buttons", style=wx.ALIGN_LEFT)
@@ -516,13 +530,14 @@ class JoyButtons(wx.Panel):
             if self.leds[i].state == 1:
                 self.leds[i].state = 0
 
-            if (t & (1 << i)):
+            if t & (1 << i):
                 self.leds[i].state = 1
 
             self.leds[i].Update()
 
 
 # ----------------------------------------------------------------------------
+
 
 class InfoPanel(wx.Panel):
     def __init__(self, parent, stick):
@@ -532,44 +547,100 @@ class InfoPanel(wx.Panel):
 
         sizer = wx.GridBagSizer(1, 1)
 
-        sizer.Add(Label(self, 'Mfr ID: '), (0, 0), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_RIGHT, 2)
-        self.MfgID = wx.TextCtrl(self, -1, value='', size=(45, -1), style=wx.TE_READONLY)
+        sizer.Add(
+            Label(self, "Mfr ID: "),
+            (0, 0),
+            (1, 1),
+            wx.ALL | wx.GROW | wx.ALIGN_RIGHT,
+            2,
+        )
+        self.MfgID = wx.TextCtrl(
+            self, -1, value="", size=(45, -1), style=wx.TE_READONLY
+        )
         sizer.Add(self.MfgID, (0, 1), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_LEFT, 2)
 
-        sizer.Add(Label(self, 'Prod Name: '), (0, 2), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_RIGHT, 2)
-        self.ProdName = wx.TextCtrl(self, -1, value='', style=wx.TE_READONLY)
+        sizer.Add(
+            Label(self, "Prod Name: "),
+            (0, 2),
+            (1, 1),
+            wx.ALL | wx.GROW | wx.ALIGN_RIGHT,
+            2,
+        )
+        self.ProdName = wx.TextCtrl(self, -1, value="", style=wx.TE_READONLY)
         sizer.Add(self.ProdName, (0, 3), (1, 3), wx.ALL | wx.GROW | wx.ALIGN_LEFT, 2)
 
-        sizer.Add(Label(self, 'Threshold: '), (0, 6), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_RIGHT, 2)
-        self.Threshold = wx.TextCtrl(self, -1, value='', size=(45, -1), style=wx.TE_READONLY)
+        sizer.Add(
+            Label(self, "Threshold: "),
+            (0, 6),
+            (1, 1),
+            wx.ALL | wx.GROW | wx.ALIGN_RIGHT,
+            2,
+        )
+        self.Threshold = wx.TextCtrl(
+            self, -1, value="", size=(45, -1), style=wx.TE_READONLY
+        )
         sizer.Add(self.Threshold, (0, 7), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_LEFT, 2)
 
         # ----------------------------------------------------------------------------
         b = wx.Button(self, -1, "Calibrate")
         sizer.Add(b, (1, 0), (2, 2), wx.ALL | wx.ALIGN_CENTER, 2)
 
-        sizer.Add(Label(self, '# of Sticks: '), (1, 2), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_RIGHT, 2)
-        self.NumJoysticks = wx.TextCtrl(self, -1, value='', size=(45, -1), style=wx.TE_READONLY)
-        sizer.Add(self.NumJoysticks, (1, 3), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_LEFT, 2)
+        sizer.Add(
+            Label(self, "# of Sticks: "),
+            (1, 2),
+            (1, 1),
+            wx.ALL | wx.GROW | wx.ALIGN_RIGHT,
+            2,
+        )
+        self.NumJoysticks = wx.TextCtrl(
+            self, -1, value="", size=(45, -1), style=wx.TE_READONLY
+        )
+        sizer.Add(
+            self.NumJoysticks, (1, 3), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_LEFT, 2
+        )
 
-        sizer.Add(Label(self, '# of Axes: '), (1, 4), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_RIGHT, 2)
-        self.NumAxis = wx.TextCtrl(self, -1, value='', size=(45, -1), style=wx.TE_READONLY)
+        sizer.Add(
+            Label(self, "# of Axes: "),
+            (1, 4),
+            (1, 1),
+            wx.ALL | wx.GROW | wx.ALIGN_RIGHT,
+            2,
+        )
+        self.NumAxis = wx.TextCtrl(
+            self, -1, value="", size=(45, -1), style=wx.TE_READONLY
+        )
         sizer.Add(self.NumAxis, (1, 5), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_LEFT, 2)
 
-        sizer.Add(Label(self, 'Max # Axes: '), (1, 6), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_RIGHT, 2)
-        self.MaxAxis = wx.TextCtrl(self, -1, value='', size=(45, -1), style=wx.TE_READONLY)
+        sizer.Add(
+            Label(self, "Max # Axes: "),
+            (1, 6),
+            (1, 1),
+            wx.ALL | wx.GROW | wx.ALIGN_RIGHT,
+            2,
+        )
+        self.MaxAxis = wx.TextCtrl(
+            self, -1, value="", size=(45, -1), style=wx.TE_READONLY
+        )
         sizer.Add(self.MaxAxis, (1, 7), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_LEFT, 2)
 
         # ----------------------------------------------------------------------------
 
-        sizer.Add(Label(self, 'Polling -- '), (2, 3), (1, 1), wx.ALL | wx.GROW, 2)
+        sizer.Add(Label(self, "Polling -- "), (2, 3), (1, 1), wx.ALL | wx.GROW, 2)
 
-        sizer.Add(Label(self, 'Min: '), (2, 4), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_RIGHT, 2)
-        self.PollMin = wx.TextCtrl(self, -1, value='', size=(45, -1), style=wx.TE_READONLY)
+        sizer.Add(
+            Label(self, "Min: "), (2, 4), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_RIGHT, 2
+        )
+        self.PollMin = wx.TextCtrl(
+            self, -1, value="", size=(45, -1), style=wx.TE_READONLY
+        )
         sizer.Add(self.PollMin, (2, 5), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_LEFT, 2)
 
-        sizer.Add(Label(self, 'Max: '), (2, 6), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_RIGHT, 2)
-        self.PollMax = wx.TextCtrl(self, -1, value='', size=(45, -1), style=wx.TE_READONLY)
+        sizer.Add(
+            Label(self, "Max: "), (2, 6), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_RIGHT, 2
+        )
+        self.PollMax = wx.TextCtrl(
+            self, -1, value="", size=(45, -1), style=wx.TE_READONLY
+        )
         sizer.Add(self.PollMax, (2, 7), (1, 1), wx.ALL | wx.GROW | wx.ALIGN_LEFT, 2)
 
         # ----------------------------------------------------------------------------
@@ -595,6 +666,7 @@ class InfoPanel(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
+
 class AxisBar(wx.Gauge):
     #
     # This class allows us to use a wx.Gauge to display the axis value
@@ -606,13 +678,15 @@ class AxisBar(wx.Gauge):
     # which is then drawn over the gauge.
     #
     def __init__(self, parent):
-        wx.Gauge.__init__(self, parent, -1, 1000, size=(-1, 20), style=wx.GA_HORIZONTAL | wx.GA_SMOOTH)
+        wx.Gauge.__init__(
+            self, parent, -1, 1000, size=(-1, 20), style=wx.GA_HORIZONTAL | wx.GA_SMOOTH
+        )
 
         # This is the value we will display.
         self.rawvalue = 0
 
-        self.SetBackgroundColour('light blue')
-        self.SetForegroundColour('orange')
+        self.SetBackgroundColour("light blue")
+        self.SetForegroundColour("orange")
 
         # Capture paint events for purpose of updating
         # the displayed value.
@@ -651,7 +725,7 @@ class AxisBar(wx.Gauge):
             self.GetFont().GetPointSize(),
             self.GetFont().GetFamily(),
             self.GetFont().GetStyle(),
-            wx.BOLD
+            wx.BOLD,
         )
 
         # Set the font for the DC ...
@@ -676,11 +750,12 @@ class AxisBar(wx.Gauge):
         dc.SetTextForeground(wx.BLACK)
         dc.DrawText(txt, tx, ty)
 
-        dc.SetTextForeground('white')
+        dc.SetTextForeground("white")
         dc.DrawText(txt, tx - 1, ty - 1)
 
 
 # ----------------------------------------------------------------------------
+
 
 class Axis(wx.Panel):
     #
@@ -703,8 +778,8 @@ class Axis(wx.Panel):
         # X and Y are always there, so we tie the Has* method
         # to a hardwired True value.
         #
-        if token not in ['X', 'Y']:
-            self.HasFunc = eval('stick.Has%s' % token)
+        if token not in ["X", "Y"]:
+            self.HasFunc = eval("stick.Has%s" % token)
         else:
             self.HasFunc = self.alwaysTrue
 
@@ -719,22 +794,28 @@ class Axis(wx.Panel):
             # stick method. If we don't have the axis in question,
             # we won't need them.
             #
-            self.GetMin = eval('stick.Get%sMin' % token)
-            self.GetMax = eval('stick.Get%sMax' % token)
+            self.GetMin = eval("stick.Get%sMin" % token)
+            self.GetMax = eval("stick.Get%sMax" % token)
 
             # Create our displays and set them up.
             self.Min = wx.StaticText(self, -1, str(self.GetMin()), style=wx.ALIGN_RIGHT)
             self.Max = wx.StaticText(self, -1, str(self.GetMax()), style=wx.ALIGN_LEFT)
             self.bar = AxisBar(self)
 
-            sizer.Add(self.Min, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 1)
-            sizer.Add(self.bar, 1, wx.ALL | wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL, 1)
+            sizer.Add(
+                self.Min, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 1
+            )
+            sizer.Add(
+                self.bar, 1, wx.ALL | wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL, 1
+            )
             sizer.Add(self.Max, 0, wx.ALL | wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, 1)
 
         else:
             # We go here if the axis in question is not available.
-            self.control = wx.StaticText(self, -1, '       *** Not Present ***')
-            sizer.Add(self.control, 1, wx.ALL | wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL, 1)
+            self.control = wx.StaticText(self, -1, "       *** Not Present ***")
+            sizer.Add(
+                self.control, 1, wx.ALL | wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL, 1
+            )
 
         # ----------------------------------------------------------------------------
 
@@ -767,12 +848,12 @@ class Axis(wx.Panel):
         # Here we either select the appropriate member of stick.GetPosition() or
         # apply the appropriate Get*Position method call.
         #
-        if self.token == 'X':
+        if self.token == "X":
             val = self.stick.GetPosition().x
-        elif self.token == 'Y':
+        elif self.token == "Y":
             val = self.stick.GetPosition().y
         else:
-            val = eval('self.stick.Get%sPosition()' % self.token)
+            val = eval("self.stick.Get%sPosition()" % self.token)
 
         #
         # While we might be able to rely on a range of 0-FFFFFF on Win, that might
@@ -805,6 +886,7 @@ class Axis(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
+
 class AxisPanel(wx.Panel):
     #
     # Contained herein is a panel that offers a graphical display
@@ -819,9 +901,12 @@ class AxisPanel(wx.Panel):
         # Defines labels and 'tokens' to identify each
         # supporte axis.
         axesList = [
-            ('X Axis ', 'X'), ('Y Axis ', 'Y'),
-            ('Z Axis ', 'Z'), ('Rudder ', 'Rudder'),
-            ('U Axis ', 'U'), ('V Axis ', 'V')
+            ("X Axis ", "X"),
+            ("Y Axis ", "Y"),
+            ("Z Axis ", "Z"),
+            ("Rudder ", "Rudder"),
+            ("U Axis ", "U"),
+            ("V Axis ", "V"),
         ]
 
         # Contains a list of all axis initialized.
@@ -860,8 +945,8 @@ class AxisPanel(wx.Panel):
 
 # ----------------------------------------------------------------------------
 
-class JoystickPanel(wx.Panel):
 
+class JoystickPanel(wx.Panel):
     def __init__(self, parent, log):
 
         self.log = log
@@ -899,7 +984,13 @@ class JoystickPanel(wx.Panel):
         sizer.Add(self.axes, (2, 0), (1, 3), wx.ALL | wx.GROW, 2)
 
         self.buttons = JoyButtons(self, self.stick)
-        sizer.Add(self.buttons, (3, 0), (1, 3), wx.ALL | wx.EXPAND | wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL, 1)
+        sizer.Add(
+            self.buttons,
+            (3, 0),
+            (1, 3),
+            wx.ALL | wx.EXPAND | wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL,
+            1,
+        )
 
         self.SetSizer(sizer)
         sizer.Fit(self)
@@ -919,7 +1010,7 @@ class JoystickPanel(wx.Panel):
         self.buttons.Calibrate()
 
     def OnJoystick(self, evt=None):
-        axes_tmp_list = [0,0,0,0,0,0]
+        axes_tmp_list = [0, 0, 0, 0, 0, 0]
         i = 0
         if not self.stick:
             return
@@ -941,26 +1032,40 @@ class JoystickPanel(wx.Panel):
             self.buttons.Update()
 
         if self.GetParent().GetParent().GetParent()._app._joystick_factory:
-            proto = self.GetParent().GetParent().GetParent()._app._joystick_factory._proto
+            proto = (
+                self.GetParent().GetParent().GetParent()._app._joystick_factory._proto
+            )
             if proto:
                 # Send message to server
-                evt = {'x': 1, 'y': 1, 'z': .5, 'r': -.1, 'p': .2, 'c': -1,
-                       'button': 17, 'checksum': 987}
+                evt = {
+                    "x": 1,
+                    "y": 1,
+                    "z": 0.5,
+                    "r": -0.1,
+                    "p": 0.2,
+                    "c": -1,
+                    "button": 17,
+                    "checksum": 987,
+                }
 
                 # Sorry Vlad, I'll make this nicer when we have time
-                evt['x'] = axes_tmp_list[0]/32767-1
-                evt['y'] = axes_tmp_list[1]/32767-1
-                evt['z'] = axes_tmp_list[2]/32767-1
-                evt['r'] = axes_tmp_list[3]/32767-1
-                evt['p'] = axes_tmp_list[4]/32767-1
-                evt['c'] = axes_tmp_list[5]/32767-1
+                evt["x"] = axes_tmp_list[0] / 32767 - 1
+                evt["y"] = axes_tmp_list[1] / 32767 - 1
+                evt["z"] = axes_tmp_list[2] / 32767 - 1
+                evt["r"] = axes_tmp_list[3] / 32767 - 1
+                evt["p"] = axes_tmp_list[4] / 32767 - 1
+                evt["c"] = axes_tmp_list[5] / 32767 - 1
 
-                msg = json.dumps(evt).encode('utf8')
+                msg = json.dumps(evt).encode("utf8")
                 proto.sendMessage(msg)
                 # Update UI
-                self.GetParent().GetParent().networking_io.messages.AppendText("Sending to server: {}\n".format(msg))
+                self.GetParent().GetParent().networking_io.messages.AppendText(
+                    "Sending to server: {}\n".format(msg)
+                )
             else:
-                self.GetParent().GetParent().networking_io.messages.AppendText("Check websocket connection\n")
+                self.GetParent().GetParent().networking_io.messages.AppendText(
+                    "Check websocket connection\n"
+                )
 
         # This is where custom messages would be sent from
 
@@ -968,6 +1073,7 @@ class JoystickPanel(wx.Panel):
         if self.stick:
             self.stick.ReleaseCapture()
         self.stick = None
+
 
 overview = """\
 <html>

@@ -5,8 +5,8 @@ from panels.image_panel import ImageStreamPanel
 from panels.joystick import JoystickPanel
 from panels.networking_panel import NetworkingControlPanel
 
-class ROVPanel(wx.Panel):
 
+class ROVPanel(wx.Panel):
     def __init__(self, parent, container_id=None, log=None):
         super(ROVPanel, self).__init__(parent)
         self.container_id = container_id
@@ -18,8 +18,10 @@ class ROVPanel(wx.Panel):
         websocket_and_networking_hbox = wx.BoxSizer(wx.HORIZONTAL)
 
         # Websocket status information panel
-        websocket_status_static_box = wx.StaticBox(panel, -1, 'Websocket Status')
-        websocket_status_sizer = wx.StaticBoxSizer(websocket_status_static_box, wx.HORIZONTAL)
+        websocket_status_static_box = wx.StaticBox(panel, -1, "Websocket Status")
+        websocket_status_sizer = wx.StaticBoxSizer(
+            websocket_status_static_box, wx.HORIZONTAL
+        )
 
         # auv camera websocket connection indicator
         ws_camera_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -44,25 +46,32 @@ class ROVPanel(wx.Panel):
         websocket_status_sizer.Add(ws_camera_sizer, 0, wx.ALL | wx.TOP, 5)
 
         # Networking panel
-        self.networking_io = NetworkingControlPanel(parent=panel, label="Networking", id=-1)
+        self.networking_io = NetworkingControlPanel(
+            parent=panel, label="Networking", id=-1
+        )
 
         # Image panel
-        self.image_viewer = ImageStreamPanel(parent=panel, label="Vision Processing", id=-1)
+        self.image_viewer = ImageStreamPanel(
+            parent=panel, label="Vision Processing", id=-1
+        )
 
         # Joystick panel
         # TODO: Refactor to reduce to singular call
-        joystick_controls = wx.StaticBox(panel, -1, 'Joystick Controls:')
+        joystick_controls = wx.StaticBox(panel, -1, "Joystick Controls:")
         joystick_main_sizer = wx.StaticBoxSizer(joystick_controls, wx.VERTICAL)
         joystick_panel = JoystickPanel(panel, self.log)
         joystick_main_sizer.Add(joystick_panel)
 
         # Panel construction
-        websocket_and_networking_hbox.Add(websocket_status_sizer, 0, wx.ALL | wx.CENTER, 5)
-        websocket_and_networking_hbox.Add(self.networking_io.panel, 0, wx.ALL | wx.CENTER, 5)
+        websocket_and_networking_hbox.Add(
+            websocket_status_sizer, 0, wx.ALL | wx.CENTER, 5
+        )
+        websocket_and_networking_hbox.Add(
+            self.networking_io.panel, 0, wx.ALL | wx.CENTER, 5
+        )
         panel_vbox.Add(websocket_and_networking_hbox, 0, wx.ALL | wx.CENTER, 5)
         panel_vbox.Add(self.image_viewer.panel, 0, wx.ALL | wx.CENTER, 5)
         panel_vbox.Add(joystick_main_sizer, 0, wx.ALL | wx.CENTER, 5)
         panel.SetSizer(panel_vbox)
         self.Centre()
         panel.Fit()
-
