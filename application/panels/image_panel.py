@@ -51,7 +51,7 @@ class ImageStreamPanel(wx.StaticBox):
         self.dir_to_process_value = wx.StaticText(self.GetParent(), -1, "N/A")
 
         self.num_images_to_process_label = wx.StaticText(
-            self.GetParent(), -1, "Number of images"
+            self.GetParent(), -1, "Number of assets"
         )
         font = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         font.SetUnderlined(True)
