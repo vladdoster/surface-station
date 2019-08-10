@@ -9,7 +9,6 @@ from networking.factories import ClientFactory
 from networking.protocols import CameraStreamProtocol, JoystickExecutorProtocol
 from panels.menu_bar import MenuBar
 from panels.rov_panel import ROVPanel
-from utils import start_ml_docker_container
 from wx.adv import SPLASH_CENTRE_ON_SCREEN, SPLASH_TIMEOUT, SplashScreen
 
 global container_id, log
@@ -28,7 +27,7 @@ class MainFrame(wx.Frame):
                      1000, None, -1)
 
         wx.SafeYield()
-        global container_id, log
+        global log
 
         # Menu bar
         menu_bar = MenuBar()
@@ -74,7 +73,7 @@ if __name__ == "__main__":
                                  ######    #######  ####
 
                 """)
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/vlad/Downloads/Enbarr-9a739a9422cc.json"
+    # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/vlad/Downloads/Enbarr-9a739a9422cc.json"
     app = wx.App(False)
     app._camera_factory = None
     app._joystick_factory = None
