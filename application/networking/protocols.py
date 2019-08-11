@@ -8,10 +8,9 @@ from autobahn.twisted import WebSocketClientProtocol
 
 class CameraStreamProtocol(WebSocketClientProtocol):
     def onOpen(self):
-        print("WebSocket connection open.")
+        print("WebSocket connection opened")
         self.factory._proto = self
         self.received_images_count = 0
-        print("updated ui color")
         # Update websocket info color
         frame = self.factory._app._frame
         frame.rov_panel.camera_status_pnl.SetBackgroundColour("#228B22")
@@ -41,8 +40,6 @@ class CameraStreamProtocol(WebSocketClientProtocol):
                         image_file.write(base64.b64decode(payload))
             else:
                 self.received_images_count = 0
-            frame = self.factory._app._frame
-
             try:
                 img = wx.Image(f, wx.BITMAP_TYPE_ANY)
                 frame.rov_panel.image_viewer.raw_camera_stream.SetBitmap(wx.Bitmap(img))
