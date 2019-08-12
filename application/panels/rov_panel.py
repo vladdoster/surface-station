@@ -1,4 +1,3 @@
-import docker
 import wx
 import wx.html
 from panels.image_panel import ImageStreamPanel

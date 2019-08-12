@@ -1,8 +1,5 @@
 import json
-
 import wx
-
-# Networking panel
 
 
 class NetworkingControlPanel(wx.StaticBox):

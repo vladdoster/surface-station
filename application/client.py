@@ -6,7 +6,6 @@ import wx.html
 from networking.factories import ClientFactory
 from networking.protocols import CameraStreamProtocol, JoystickExecutorProtocol
 from panels.root_panel import RootFrame
-from twisted.internet import reactor
 from twisted.internet import wxreactor
 from twisted.python import log
 
@@ -41,13 +40,13 @@ def start_surface_station():
     app._joystick_factory = None
 
     app._frame = RootFrame(app, log)
-    timer = wx.Timer()
-    time.sleep(1)
-    app._frame.Show()
-    reactor.registerWxApp(app)
+    # timer = wx.Timer()
+    # time.sleep(config.splash_screen_timeout/1000)
 
-    simmode = False
-    if simmode:
+
+    from twisted.internet import reactor
+    reactor.registerWxApp(app)
+    if config.sim_mode:
         print("Note: Simulation mode is true, we're running locally!")
         app._camera_factory = ClientFactory(
             config.dev_camera_ws_url, app, protocol=CameraStreamProtocol
