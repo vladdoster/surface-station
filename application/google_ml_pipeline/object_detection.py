@@ -1,13 +1,10 @@
 import glob
-import os
 
+import config
 import cv2
-import wx
 from cv2 import rectangle
 from google.cloud import automl_v1beta1
 from google.protobuf.json_format import MessageToDict
-
-import config
 
 
 def get_prediction(self, content, project_id, model_id):
