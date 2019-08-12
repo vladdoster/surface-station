@@ -1,5 +1,4 @@
 import sys
-import time
 
 import config
 import wx.html
@@ -52,8 +51,8 @@ def start_surface_station():
             config.dev_joystick_ws_url, app, protocol=JoystickExecutorProtocol
         )
         # Connect to host
-        reactor.connectTCP(config.dev_robot_url, 9000, app._camera_factory)
-        reactor.connectTCP(config.dev_robot_url, 9001, app._joystick_factory)
+        reactor.connectTCP(config.dev_robot_url, config.dev_camera_ws_port, app._camera_factory)
+        reactor.connectTCP(config.dev_robot_url, config.dev_joystick_ws_port, app._joystick_factory)
     else:
         print("Note: Simulation mode is false, we're looking for the actual robot!")
         app._camera_factory = ClientFactory(
@@ -63,8 +62,8 @@ def start_surface_station():
             config.live_joystick_ws_url, app, protocol=JoystickExecutorProtocol
         )
         # Connect to host
-        reactor.connectTCP(config.live_robot_url, 9000, app._camera_factory)
-        reactor.connectTCP(config.live_robot_url, 9001, app._joystick_factory)
+        reactor.connectTCP(config.live_robot_url, config.live_camera_ws_port, app._camera_factory)
+        reactor.connectTCP(config.live_robot_url, config.live_joystick_ws_port, app._joystick_factory)
 
     # Start twisted event loop
     reactor.run()
