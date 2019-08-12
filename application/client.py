@@ -1,3 +1,4 @@
+import os
 import sys
 
 import config
@@ -33,7 +34,11 @@ def start_surface_station():
 
                 """
     )
-    # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/vlad/Downloads/Enbarr-9a739a9422cc.json"
+    try:
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = config.google_application_credentials_path
+    except OSError as e:
+        print("Error setting GOOGLE_APPLICATION_CREDENTIALS\n{}".format(e))
+
     app = wx.App(False)
     app._camera_factory = None
     app._joystick_factory = None

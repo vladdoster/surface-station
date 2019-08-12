@@ -25,6 +25,7 @@ live_joystick_ws_port = 9001
 live_robot_url = "enbarr.local"
 
 # Google cloud
+google_application_credentials_path = "/home/vlad/Downloads/Enbarr-9a739a9422cc.json"
 google_api_key = ""
 google_api_secret = ""
 
