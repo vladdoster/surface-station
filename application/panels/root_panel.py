@@ -14,7 +14,6 @@ class RootFrame(wx.Frame):
         frame = wx.Frame.__init__(self, None, wx.ID_ANY, "Enbarr")
         self._app = app
         self.display_splash_screen()
-        wx.SafeYield()
 
         # Menu bar
         menu_bar = MenuBar()
@@ -30,6 +29,7 @@ class RootFrame(wx.Frame):
 
     def display_splash_screen(self):
         bmp = wx.Image("assets/enbarr.png").ConvertToBitmap()
-        SplashScreen(bmp, SPLASH_CENTRE_ON_SCREEN | SPLASH_TIMEOUT, config.splash_screen_timeout, None, -1)
-        time.sleep(config.splash_screen_timeout / 1000)
+        SplashScreen(bmp, SPLASH_CENTRE_ON_SCREEN | SPLASH_TIMEOUT, config.splash_screen_time, None, -1)
+        wx.SafeYield()
+        time.sleep(config.splash_screen_time / 1000)
         self.Show()
