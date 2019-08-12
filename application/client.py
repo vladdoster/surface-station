@@ -40,9 +40,6 @@ def start_surface_station():
     app._joystick_factory = None
 
     app._frame = RootFrame(app, log)
-    # timer = wx.Timer()
-    # time.sleep(config.splash_screen_timeout/1000)
-
 
     from twisted.internet import reactor
     reactor.registerWxApp(app)
