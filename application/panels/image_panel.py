@@ -2,6 +2,7 @@ import glob
 import os
 
 import wx
+
 # from google.cloud import automl_v1beta1
 # from google.protobuf.json_format import MessageToDict
 from google_ml_pipeline.object_detection import batch_process
