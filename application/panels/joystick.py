@@ -245,47 +245,46 @@ class POVGauge(wx.Panel):
         dc.DrawLine(xorigin, ycenter, xorigin + diameter, ycenter)
         dc.DrawLine(xcenter, yorigin, xcenter, yorigin + diameter)
 
-        if self.stick:
-            if self.avail:
+        if self.stick and self.avail:
 
-                pos = -1
+            pos = -1
 
-                # use the appropriate function to get the POV position
-                if self.fourDir:
-                    pos = self.stick.GetPOVPosition()
+            # use the appropriate function to get the POV position
+            if self.fourDir:
+                pos = self.stick.GetPOVPosition()
 
-                if self.cts:
-                    pos = self.stick.GetPOVCTSPosition()
+            if self.cts:
+                pos = self.stick.GetPOVCTSPosition()
 
-                # trap invalid values
-                if 0 <= pos <= 36000:
-                    vector = 30
-                else:
-                    vector = 0
+            # trap invalid values
+            if 0 <= pos <= 36000:
+                vector = 30
+            else:
+                vector = 0
 
-                # rotate CCW by 90 so that 0 is up.
-                pos = (pos / 100) - 90
+            # rotate CCW by 90 so that 0 is up.
+            pos = (pos / 100) - 90
 
-                # Normalize
-                if pos < 0:
-                    pos = pos + 360
+            # Normalize
+            if pos < 0:
+                pos = pos + 360
 
-                # Stolen from wx.lib.analogclock :-)
-                radiansPerDegree = math.pi / 180
-                pointX = int(round(vector * math.cos(pos * radiansPerDegree)))
-                pointY = int(round(vector * math.sin(pos * radiansPerDegree)))
+            # Stolen from wx.lib.analogclock :-)
+            radiansPerDegree = math.pi / 180
+            pointX = int(round(vector * math.cos(pos * radiansPerDegree)))
+            pointY = int(round(vector * math.sin(pos * radiansPerDegree)))
 
-                # normalise value to match our actual center.
-                nx = pointX + xcenter
-                ny = pointY + ycenter
+            # normalise value to match our actual center.
+            nx = pointX + xcenter
+            ny = pointY + ycenter
 
-                # Draw the line
-                dc.SetPen(wx.Pen(wx.BLUE, 2))
-                dc.DrawLine(xcenter, ycenter, nx, ny)
+            # Draw the line
+            dc.SetPen(wx.Pen(wx.BLUE, 2))
+            dc.DrawLine(xcenter, ycenter, nx, ny)
 
-                # And a little thing to show the endpoint
-                dc.SetBrush(wx.Brush(wx.BLUE))
-                dc.DrawCircle(nx, ny, 8)
+            # And a little thing to show the endpoint
+            dc.SetBrush(wx.Brush(wx.BLUE))
+            dc.DrawCircle(nx, ny, 8)
 
     def Update(self):
         dc = wx.BufferedDC(wx.ClientDC(self), self.buffer)
