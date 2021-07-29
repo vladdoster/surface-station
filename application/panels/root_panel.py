@@ -29,7 +29,13 @@ class RootFrame(wx.Frame):
 
     def display_splash_screen(self):
         bmp = wx.Image("assets/enbarr.png").ConvertToBitmap()
-        SplashScreen(bmp, SPLASH_CENTRE_ON_SCREEN | SPLASH_TIMEOUT, config.splash_screen_time, None, -1)
+        SplashScreen(
+            bmp,
+            SPLASH_CENTRE_ON_SCREEN | SPLASH_TIMEOUT,
+            config.splash_screen_time,
+            None,
+            -1,
+        )
         wx.SafeYield()
         time.sleep(config.splash_screen_time / 1000)
         self.Show()

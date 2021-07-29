@@ -35,7 +35,9 @@ def start_surface_station():
                 """
     )
     try:
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = config.google_application_credentials_path
+        os.environ[
+            "GOOGLE_APPLICATION_CREDENTIALS"
+        ] = config.google_application_credentials_path
     except OSError as e:
         print("Error setting GOOGLE_APPLICATION_CREDENTIALS\n{}".format(e))
 
@@ -46,6 +48,7 @@ def start_surface_station():
     app._frame = RootFrame(app, log)
 
     from twisted.internet import reactor
+
     reactor.registerWxApp(app)
     if config.sim_mode:
         print("Note: Simulation mode is true, we're running locally!")
@@ -56,8 +59,12 @@ def start_surface_station():
             config.dev_joystick_ws_url, app, protocol=JoystickExecutorProtocol
         )
         # Connect to host
-        reactor.connectTCP(config.dev_robot_url, config.dev_camera_ws_port, app._camera_factory)
-        reactor.connectTCP(config.dev_robot_url, config.dev_joystick_ws_port, app._joystick_factory)
+        reactor.connectTCP(
+            config.dev_robot_url, config.dev_camera_ws_port, app._camera_factory
+        )
+        reactor.connectTCP(
+            config.dev_robot_url, config.dev_joystick_ws_port, app._joystick_factory
+        )
     else:
         print("Note: Simulation mode is false, we're looking for the actual robot!")
         app._camera_factory = ClientFactory(
@@ -67,8 +74,12 @@ def start_surface_station():
             config.live_joystick_ws_url, app, protocol=JoystickExecutorProtocol
         )
         # Connect to host
-        reactor.connectTCP(config.live_robot_url, config.live_camera_ws_port, app._camera_factory)
-        reactor.connectTCP(config.live_robot_url, config.live_joystick_ws_port, app._joystick_factory)
+        reactor.connectTCP(
+            config.live_robot_url, config.live_camera_ws_port, app._camera_factory
+        )
+        reactor.connectTCP(
+            config.live_robot_url, config.live_joystick_ws_port, app._joystick_factory
+        )
 
     # Start twisted event loop
     reactor.run()
