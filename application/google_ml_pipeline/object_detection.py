@@ -63,7 +63,7 @@ def process_image_cloud_ml(self, content, project_id, model_id, image_name):
 def batch_process(self, event):
     print("Starting batch processing. . .")
     for i, image in enumerate(
-        [f for f in glob.glob(str(self.record_dataset_to_dir) + "/*.jpg")]
+        f for f in glob.glob(str(self.record_dataset_to_dir) + "/*.jpg")
     ):
         with open(image, "rb") as image_file:
             content = image_file.read()
