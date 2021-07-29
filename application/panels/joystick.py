@@ -879,7 +879,8 @@ class Axis(wx.Panel):
         #
         self.bar.Update(relative, val)
 
-    def alwaysTrue(self):
+    @staticmethod
+    def alwaysTrue():
         # a dummy method used for X and Y axis.
         return True
 

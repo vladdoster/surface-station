@@ -38,7 +38,8 @@ class MenuBar(wx.MenuBar):
         print("Closing app...")
         self.Destroy()
 
-    def documentation(self, event):
+    @staticmethod
+    def documentation(event):
         try:
             browser = os.environ.get("BROWSER")
             doc_url = "https://vdoster.com"
@@ -48,8 +49,10 @@ class MenuBar(wx.MenuBar):
         except KeyError as e:
             print("No browser env var set, creating popup\n\n{}".format(e))
 
-    def options(self, event):
+    @staticmethod
+    def options(event):
         print("Not implemented yet")
 
-    def upload_model(self, event):
+    @staticmethod
+    def upload_model(event):
         print("Not implemented yet")
